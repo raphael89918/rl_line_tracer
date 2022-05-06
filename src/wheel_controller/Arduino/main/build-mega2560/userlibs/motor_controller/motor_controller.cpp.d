@@ -1,0 +1,31 @@
+build-mega2560/userlibs/motor_controller/motor_controller.cpp.o: \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/motor_controller/motor_controller.cpp \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/motor_controller/motor_controller.hpp \
+ /usr/share/arduino/hardware/arduino//cores/arduino/Arduino.h \
+ /usr/share/arduino/hardware/arduino//cores/arduino/binary.h \
+ /usr/share/arduino/hardware/arduino//cores/arduino/WCharacter.h \
+ /usr/share/arduino/hardware/arduino//cores/arduino/WString.h \
+ /usr/share/arduino/hardware/arduino//cores/arduino/HardwareSerial.h \
+ /usr/share/arduino/hardware/arduino//cores/arduino/Stream.h \
+ /usr/share/arduino/hardware/arduino//cores/arduino/Print.h \
+ /usr/share/arduino/hardware/arduino//cores/arduino/Printable.h \
+ /usr/share/arduino/hardware/arduino//cores/arduino/new.h \
+ /usr/share/arduino/hardware/arduino//variants/mega/pins_arduino.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros/node_handle.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/std_msgs/Time.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros/msg.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros/time.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros/duration.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/rosserial_msgs/TopicInfo.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/rosserial_msgs/Log.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/rosserial_msgs/RequestParam.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros/publisher.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros/node_handle.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros/subscriber.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros/service_server.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ros/service_client.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/ArduinoHardware.h \
+ /usr/share/arduino/hardware/arduino//cores/arduino/HardwareSerial.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/wheel_controller/motor.h \
+ /home/zisheng/catkin_ws/src/wheel_controller/Arduino/libraries/ros_lib/std_msgs/Header.h

@@ -1,0 +1,3 @@
+[submodule "deps/conio"]
+	path = deps/conio
+	url = git@gitlab.ical.tw:jamesljlster/conio.git
