@@ -1,0 +1,42 @@
+cmake_minimum_required(VERSION 2.8)
+
+# Variables
+set(PROJECT_NAME conio)
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Build configuration" FORCE)
+if(DEFINED CMAKE_BUILD_TYPE)
+	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES})
+endif()
+set(CMAKE_BUILD_TYPE Release)
+
+# Set project
+project(${PROJECT_NAME} C CXX)
+
+# Include directory
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+# Set file lists
+set(CONIO_SRCS
+	${CMAKE_CURRENT_SOURCE_DIR}/conio.c
+	)
+
+set(CONIO_HEADER
+	${CMAKE_CURRENT_SOURCE_DIR}/conio.h
+	)
+
+# Build conio library
+add_library(${PROJECT_NAME} STATIC ${CONIO_SRCS})
+set_target_properties(${PROJECT_NAME}
+	PROPERTIES
+		OUTPUT_NAME		${PROJECT_NAME}
+		PREFIX			"lib"
+		PUBLIC_HEADER	${CONIO_HEADER}
+	)
+
+# Installing
+install(TARGETS ${PROJECT_NAME}
+	RUNTIME DESTINATION	"${CMAKE_INSTALL_PREFIX}/bin"
+	ARCHIVE DESTINATION	"${CMAKE_INSTALL_PREFIX}/lib"
+	LIBRARY DESTINATION	"${CMAKE_INSTALL_PREFIX}/lib"
+	PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_PREFIX}/include"
+	)
+

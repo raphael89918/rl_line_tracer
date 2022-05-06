@@ -1,0 +1,15 @@
+# Project File
+*.cbp
+*.depend
+*.layout
+
+# Binary File
+*.o
+*.a
+*.exe
+
+# Build folder
+build
+
+# Temp file
+*.swp
