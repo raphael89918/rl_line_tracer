@@ -291,8 +291,8 @@ void ltproc::find_corner()
         cv::resizeWindow("origin",x,y);
         cv::resize(result,result,Size(x,y));
         cv::resize(lt_frame,lt_frame,Size(x,y));
-       // cv::imshow("result", result);
-        //cv::imshow("origin", lt_frame);
+        cv::imshow("result", result);
+        cv::imshow("origin", lt_frame);
     }
 }
 
