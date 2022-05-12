@@ -17,7 +17,7 @@ ltproc::ltproc(ros::NodeHandle &nh)
 
 {
     ROS_INFO("\n Ltproc Class Constructed\n");
-    offset_pub = nh.advertise<reinforcement_learning_planner::state>("ltproc_publisher", 5);
+    offset_pub = nh.advertise<reinforcement_learning_planner::state>("/state", 5);
 }
 
 ltproc::~ltproc()
@@ -291,8 +291,8 @@ void ltproc::find_corner()
         cv::resizeWindow("origin",x,y);
         cv::resize(result,result,Size(x,y));
         cv::resize(lt_frame,lt_frame,Size(x,y));
-        cv::imshow("result", result);
-        cv::imshow("origin", lt_frame);
+       // cv::imshow("result", result);
+        //cv::imshow("origin", lt_frame);
     }
 }
 

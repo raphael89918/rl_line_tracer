@@ -152,7 +152,7 @@ void OnlineTraining::stop_wheel()
 
 void OnlineTraining::plan()
 {
-    ros::Rate time_step(2);
+    ros::Rate time_step(30);
     ROS_INFO("plan_q_learning");
 
     m_rl_handler.get_action_epsilon();
