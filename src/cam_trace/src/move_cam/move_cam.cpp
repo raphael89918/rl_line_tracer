@@ -6,6 +6,6 @@ int main(int argc,char** argv)
     ros::NodeHandle nh;
     Move move(nh);
     move.setposition();
-    move.run();
+   // move.run();
     return 0;
 }

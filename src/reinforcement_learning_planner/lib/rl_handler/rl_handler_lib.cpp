@@ -7,7 +7,7 @@ RL_handler::RL_handler()
       m_epsilon(0.1),
       m_state{0, 0, 7},
       m_action{0, 0, 0, 5, 3},
-      m_model_folder("rl_model/online"),
+      m_model_folder("/home/ical/rl_line_tracer/rl_model/online"),
       state(0.0, m_state),
       state_next(0.0, m_state),
       action{m_action},

@@ -4,3 +4,4 @@ rl_model
 *.cache
 .vscode
 
+src/wheel_controller/Arduino/main/build*

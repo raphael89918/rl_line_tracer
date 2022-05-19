@@ -89,7 +89,7 @@ void MotorController::motor_callback(const wheel_controller::motor &msg)
 {
     update_wheel(msg);
     control_wheel(msg);
-    pwm_log(msg);
+    //pwm_log(msg);
 }
 
 void MotorController::update_wheel(const wheel_controller::motor &msg)

@@ -17,7 +17,7 @@ void Move::setposition()
 {
    // nh.getParam("port",this->port);
   //  motor1(1, 0,port);
-    position = 150;
+    position = 95;
     motor1.setServoState(ON);
     motor1.setSpeed(30);
     motor1.setPosition(position);
@@ -27,7 +27,7 @@ void Move::setposition()
 }
 void Move::run()
 {
-    position = 150;
+ /*   position = 95;
     motor1.setServoState(ON);
     while (kbin != 27) {
         cout << "enter '1' to turn backword,'2'to turn forward " << endl;
@@ -46,6 +46,6 @@ void Move::run()
         }
         motor1.waitForIdle();
     }
-    motor1.setServoState(OFF);
+    motor1.setServoState(OFF);*/
 }
 

@@ -5,7 +5,7 @@
 #include <string>
 #include <ros/ros.h>
 #include "dynamixel.h"
-#include "control/control.h"
+//#include "control/control.h"
 using namespace std;
 
 class Move

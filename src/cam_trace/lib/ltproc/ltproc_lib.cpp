@@ -216,38 +216,75 @@ void ltproc::find_offset()
         for (int i = 0; i < (int)midPt.size(); i++) {
             cam_offset += ((midPt[i].x - 320) / 2) / 100.0 * weight[midPt[i].num];
         }
+        if((cam_offset>=-5)&&(cam_offset<=5))
+        {
+            msg.offset =0;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>5)&&(cam_offset<=15))
+        {
+            msg.offset =1;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>15)&&(cam_offset<=25))
+        {
+            msg.offset =2;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>25)&&(cam_offset<=35))
+        {
+            msg.offset =3;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>35)&&(cam_offset<=45))
+        {
+            msg.offset =4;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>45)&&(cam_offset<=55))
+        {
+            msg.offset =5;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>55)&&(cam_offset<=65))
+        {
+            msg.offset =6;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>=-15)&&(cam_offset<-5))
+        {
+            msg.offset =-1;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>=-25)&&(cam_offset<-15))
+        {
+            msg.offset =-2;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>=-35)&&(cam_offset<-25))
+        {
+            msg.offset =-3;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>=-45)&&(cam_offset<-35))
+        {
+            msg.offset =-4;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>=-55)&&(cam_offset<-45))
+        {
+            msg.offset =-5;
+            msg.special_case = 0;
+        }
+        else if((cam_offset>=-65)&&(cam_offset<-55))
+        {
+            msg.offset =-6;
+            msg.special_case = 0;
+        }
     }
 
-  // if((cam_offset < 60)&& (cam_offset >-60)&&(cam_offset!=0.0))
-
-        if((cam_offset>0)&&(cam_offset<=10))
-            cam_offset =1;
-        else if((cam_offset>10)&&(cam_offset<=20))
-            cam_offset =2;
-        else if((cam_offset>20)&&(cam_offset<=30))
-            cam_offset =3;
-        else if((cam_offset>30)&&(cam_offset<=40))
-            cam_offset =4;
-        else if((cam_offset>40)&&(cam_offset<=50))
-            cam_offset =5;
-        else if((cam_offset>50)&&(cam_offset<=60))
-            cam_offset =6;
-        else if((cam_offset>=-10)&&(cam_offset<0))
-            cam_offset =-1;
-        else if((cam_offset>=-20)&&(cam_offset<-10))
-            cam_offset =-2;
-        else if((cam_offset>=-30)&&(cam_offset<-20))
-            cam_offset =-3;
-        else if((cam_offset>=-40)&&(cam_offset<-30))
-            cam_offset =-4;
-        else if((cam_offset>=-50)&&(cam_offset<-40))
-            cam_offset =-5;
-        else if((cam_offset>=-60)&&(cam_offset<-50))
-            cam_offset =-6;
-        else
-            cam_offset =0;
-        msg.offset = cam_offset;
-        msg.special_case = 0;
+    if(!line)
+        msg.special_case = 1;
 
     offset_pub.publish(msg);
 
