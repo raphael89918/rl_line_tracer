@@ -5,7 +5,7 @@ RL_handler::RL_handler()
       m_learning_rate(0.9),
       m_discount_factor(0.1),
       m_epsilon(0.1),
-      m_state{0, 0, 7},
+      m_state{0, 0, 13},
       m_action{0, 0, 0, 5, 3},
       m_model_folder("/home/ical/rl_line_tracer/rl_model/online"),
       state(0.0, m_state),
@@ -40,6 +40,11 @@ void RL_handler::init_rand_generator()
     m_rand_gen = std::mt19937(static_cast<std::size_t>(std::chrono::high_resolution_clock::now()
                                                            .time_since_epoch()
                                                            .count()));
+}
+
+void RL_handler::set_file_path(const std::string &model_folder)
+{
+    m_model_folder.assign(model_folder);
 }
 
 void RL_handler::load_model(const std::string &filename)
@@ -96,7 +101,7 @@ void RL_handler::load_model(const std::string &filename)
         }
         if (line.find("q_table:") != std::string::npos)
         {
-            int8_t state_index = -3;
+            int8_t state_index = -6;
             std::vector<std::vector<double>> action_vec;
             std::vector<double> angular_row;
 
@@ -152,7 +157,7 @@ void RL_handler::load_model(const std::string &filename)
     //checking policy logging
     ROS_INFO("Q_table checking:");
 
-    for (int8_t state_index = -3; state_index <= 3; state_index++)
+    for (int8_t state_index = -6; state_index <= 6; state_index++)
     {
         for (int8_t linear_index = 0; linear_index <= 2; linear_index++)
         {
@@ -216,7 +221,7 @@ void RL_handler::save_model(const std::string &filename)
     file << "q_table: "
          << "\n";
 
-    for (int8_t state_index = -3; state_index <= 3; state_index++)
+    for (int8_t state_index = -6; state_index <= 6; state_index++)
     {
         for (int8_t linear_index = 0; linear_index <= 2; linear_index++)
         {
@@ -272,6 +277,12 @@ void RL_handler::get_action_epsilon() //epsilon greedy
         best_action(); //selected from the policy
     else
         rand_action();
+}
+
+void RL_handler::set_action(driving_action &new_action)
+{
+    action = driving_action(new_action);
+    ROS_INFO("action: %d, %d", action.trait().angular_discretization, action.trait().linear_discretization);
 }
 
 void RL_handler::rand_action()

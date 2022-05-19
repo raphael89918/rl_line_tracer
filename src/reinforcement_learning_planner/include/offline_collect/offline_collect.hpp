@@ -29,7 +29,7 @@ public:
     void stop_wheel();
 
     void get_state_reward();
-    void get_action();
+    void get_remote_action();
     void set_action();
 
 private:
@@ -37,8 +37,8 @@ private:
 
     ros::Subscriber m_sub_state;
     ros::Subscriber m_sub_reward;
-    ros::Subscriber m_sub_action;
     ros::Publisher m_pub_action;
+    ros::Subscriber m_sub_action;
 
     reinforcement_learning_planner::state m_state_msg;
     reinforcement_learning_planner::reward m_reward_msg;
@@ -48,8 +48,9 @@ private:
     RL_handler m_rl_handler;
     PlannerState m_planner_state;
 
-    void state_callback(const reinforcement_learning_planner::state::ConstPtr &msg);
-    void reward_callback(const reinforcement_learning_planner::reward::ConstPtr &msg);
+    void state_callback(const reinforcement_learning_planner::state &msg);
+    void reward_callback(const reinforcement_learning_planner::reward &msg);
+    void action_callback(const reinforcement_learning_planner::action &msg);
 
     bool m_exit;
 };

@@ -10,6 +10,7 @@ OfflineCollect::OfflineCollect(ros::NodeHandle &nh)
       m_sub_state(nh.subscribe("/state", 1, &OfflineCollect::state_callback, this)),
       m_sub_reward(nh.subscribe("/reward", 1, &OfflineCollect::reward_callback, this)),
       m_pub_action(nh.advertise<reinforcement_learning_planner::action>("/action", 1)),
+      m_sub_action(nh.subscribe("/action", 1, &OfflineCollect::action_callback, this)),
       m_planner_state(PlannerState::INIT),
       m_exit(false)
 {
@@ -143,6 +144,13 @@ void OfflineCollect::execute()
     }
 }
 
+void OfflineCollect::stop_wheel()
+{
+    m_action_sub_msg.linear_action = 0;
+    m_action_sub_msg.angular_action = 0;
+    m_pub_action.publish(m_action_sub_msg);
+}
+
 void OfflineCollect::plan()
 {
     int execute_rate = 30;
@@ -150,7 +158,9 @@ void OfflineCollect::plan()
     ros::Rate time_step(execute_rate);
     ROS_INFO("plan_q_learning");
 
-    m_rl_handler.get_action_epsilon();
+    //m_rl_handler.get_action_epsilon();
+
+    get_remote_action();
 
     set_action();
     time_step.sleep(); //giving some time to react and observe the state/reward
@@ -161,14 +171,19 @@ void OfflineCollect::plan()
     m_rl_handler.update_state();
 }
 
-void OfflineCollect::state_callback(const reinforcement_learning_planner::state::ConstPtr &msg)
+void OfflineCollect::state_callback(const reinforcement_learning_planner::state &msg)
 {
-    ROS_INFO("OfflineCollect state_callback");
+    m_state_msg = msg;
 }
 
-void OfflineCollect::reward_callback(const reinforcement_learning_planner::reward::ConstPtr &msg)
+void OfflineCollect::reward_callback(const reinforcement_learning_planner::reward &msg)
 {
-    ROS_INFO("OfflineCollect reward_callback");
+    m_reward_msg = msg;
+}
+
+void OfflineCollect::action_callback(const reinforcement_learning_planner::action &msg)
+{
+    m_action_sub_msg = msg;
 }
 
 void OfflineCollect::get_state_reward()
@@ -177,7 +192,18 @@ void OfflineCollect::get_state_reward()
     m_rl_handler.set_next_state(m_reward_msg.offset, next_state);
 }
 
+void OfflineCollect::get_remote_action()
+{
+    driving_action new_action = {m_action_sub_msg.angular_action, m_action_sub_msg.linear_action};
+    m_rl_handler.set_action(new_action);
+}
+
 void OfflineCollect::set_action()
 {
-    ROS_INFO("OfflineCollect set_action");
+    m_action_pub_msg.linear_action = m_rl_handler.action.trait().linear_discretization;
+    m_action_pub_msg.angular_action = m_rl_handler.action.trait().angular_discretization;
+    m_action_pub_msg.revert = false;
+
+    m_pub_action.publish(m_action_pub_msg);
+    ROS_INFO("Setting action:%d, %d", m_action_pub_msg.angular_action, m_action_pub_msg.linear_action);
 }

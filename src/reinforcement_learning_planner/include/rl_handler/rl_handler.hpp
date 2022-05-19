@@ -106,6 +106,8 @@ public:
     void init();
     void init_rand_generator();
 
+    void set_file_path(const std::string &model_folder);
+
     void load_model(const std::string &filename);
     void save_model(const std::string &filename);
     std::string get_filename_by_cur_time();
@@ -113,6 +115,7 @@ public:
 
     void get_action_epsilon();
 
+    void set_action(driving_action &action);
     void rand_action();
     void best_action();
 
