@@ -301,7 +301,7 @@ void RL_handler::set_action(driving_action &new_action)
 void RL_handler::rand_action()
 {
     std::uniform_int_distribution<int8_t> angular_gen(-2, 2);
-    std::uniform_int_distribution<int8_t> linear_gen(0, 3);
+    std::uniform_int_distribution<int8_t> linear_gen(0, 2);
 
     auto angular = angular_gen(m_rand_gen);
     auto linear = linear_gen(m_rand_gen);
@@ -342,6 +342,11 @@ void RL_handler::update_state()
 {
     ROS_INFO("Update state");
     state = state_next;
+}
+
+void RL_handler::update_episode()
+{
+    episode.push_back({state, action});
 }
 
 void RL_handler::learn()

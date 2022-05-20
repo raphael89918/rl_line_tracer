@@ -1,35 +1,34 @@
-#include "offline_collect/offline_collect.hpp"
+#include "demo/demo.hpp"
 
-OfflineCollect::OfflineCollect()
+Demo::Demo()
 {
-    ROS_INFO("Default OfflineCollect constructed");
+    ROS_INFO("Default Demo constructed");
 }
 
-OfflineCollect::OfflineCollect(ros::NodeHandle &nh)
+Demo::Demo(ros::NodeHandle &nh, DemoChoice demo_choice)
     : m_nh(nh),
-      m_sub_state(nh.subscribe("/state", 1, &OfflineCollect::state_callback, this)),
-      m_sub_reward(nh.subscribe("/reward", 1, &OfflineCollect::reward_callback, this)),
+      m_sub_state(nh.subscribe("/state", 1, &Demo::state_callback, this)),
       m_pub_action(nh.advertise<reinforcement_learning_planner::action>("/action", 1)),
-      m_sub_action(nh.subscribe("/action", 1, &OfflineCollect::action_callback, this)),
-      m_rl_handler("/home/ical/rl_line_tracer/rl_model/offline"),
+      m_demo_choice(demo_choice),
+      m_rl_handler(choice_to_filepath()),
       m_planner_state(PlannerState::INIT),
       m_exit(false)
 {
     ROS_INFO("OfflineCollect constructed");
 }
 
-OfflineCollect::~OfflineCollect()
+Demo::~Demo()
 {
     ROS_INFO("OfflineCollect destructed");
 }
 
-void OfflineCollect::init()
+void Demo::init()
 {
     m_rl_handler.init();
     m_rl_handler.load_model(m_rl_handler.get_recent_filename());
 }
 
-void OfflineCollect::start()
+void Demo::start()
 {
     while (!m_exit)
     {
@@ -66,7 +65,7 @@ void OfflineCollect::start()
     }
 }
 
-void OfflineCollect::suspend()
+void Demo::suspend()
 {
     ros::Rate suspend_rate(2);
 
@@ -109,12 +108,12 @@ void OfflineCollect::suspend()
     }
 }
 
-void OfflineCollect::execute()
+void Demo::execute()
 {
     //initialize first state
     ros::spinOnce();
     semantic_line_state state_trait = {m_state_msg.offset};
-    m_rl_handler.set_state(m_reward_msg.offset, state_trait);
+    //m_rl_handler.set_state(m_reward_msg.offset, state_trait);
 
     while (true)
     {
@@ -145,71 +144,47 @@ void OfflineCollect::execute()
     }
 }
 
-void OfflineCollect::stop_wheel()
+void Demo::stop_wheel()
 {
     m_action_pub_msg.linear_action = 0;
     m_action_pub_msg.angular_action = 0;
     m_pub_action.publish(m_action_pub_msg);
 }
 
-void OfflineCollect::plan()
+void Demo::plan()
 {
-    int execute_rate;
+    int execute_rate = 30;
     m_nh.getParam("execute_rate", execute_rate);
     ros::Rate time_step(execute_rate);
-    ROS_INFO("plan_q_learning");
 
-    //m_rl_handler.get_action_epsilon();
-
-    get_remote_action();
+    m_rl_handler.best_action();
 
     set_action();
     time_step.sleep(); //giving some time to react and observe the state/reward
     ros::spinOnce();
-    get_state_reward();
+    get_state();
 
-    m_rl_handler.learn();
+    m_rl_handler.update_episode();
     m_rl_handler.update_state();
 }
 
-void OfflineCollect::state_callback(const reinforcement_learning_planner::state &msg)
+void Demo::state_callback(const reinforcement_learning_planner::state &msg)
 {
     m_state_msg = msg;
 }
 
-void OfflineCollect::reward_callback(const reinforcement_learning_planner::reward &msg)
+void Demo::action_callback(const reinforcement_learning_planner::action &msg)
 {
-    m_reward_msg = msg;
+    m_action_pub_msg = msg;
 }
 
-void OfflineCollect::action_callback(const reinforcement_learning_planner::action &msg)
-{
-    m_action_sub_msg = msg;
-}
-
-void OfflineCollect::get_state_reward()
+void Demo::get_state()
 {
     semantic_line_state next_state = {m_state_msg.offset};
-    double reward = m_reward_msg.offset;
-    if (m_reward_msg.out_of_line)
-    {
-        reward -= 20.0;
-    }
-    if (m_state_msg.special_case)
-    {
-        reward -= 10.0;
-    }
-
-    m_rl_handler.set_next_state(reward, next_state);
+    m_rl_handler.set_next_state(0, next_state);
 }
 
-void OfflineCollect::get_remote_action()
-{
-    driving_action new_action = {m_action_sub_msg.angular_action, m_action_sub_msg.linear_action};
-    m_rl_handler.set_action(new_action);
-}
-
-void OfflineCollect::set_action()
+void Demo::set_action()
 {
     m_action_pub_msg.linear_action = m_rl_handler.action.trait().linear_discretization;
     m_action_pub_msg.angular_action = m_rl_handler.action.trait().angular_discretization;
@@ -217,4 +192,16 @@ void OfflineCollect::set_action()
 
     m_pub_action.publish(m_action_pub_msg);
     ROS_INFO("Setting action:%d, %d", m_action_pub_msg.angular_action, m_action_pub_msg.linear_action);
+}
+
+std::string Demo::choice_to_filepath()
+{
+    if (m_demo_choice == DemoChoice::OFFLINE)
+    {
+        return "/home/ical/rl_line_tracer/rl_model/offline";
+    }
+    if (m_demo_choice == DemoChoice::ONLINE)
+    {
+        return "/home/ical/rl_line_tracer/rl_model/online";
+    }
 }

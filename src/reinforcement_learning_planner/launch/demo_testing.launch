@@ -1,0 +1,4 @@
+<launch>
+<node name="demo_node" pkg="reinforcement_learning_planner" type="demo_node" output="screen"/>
+<param name="execute_rate" type="int" value="30" />
+</launch>

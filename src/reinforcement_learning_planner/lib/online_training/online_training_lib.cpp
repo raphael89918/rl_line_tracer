@@ -10,6 +10,7 @@ OnlineTraining::OnlineTraining(ros::NodeHandle &nh)
       m_sub_state(nh.subscribe("/state", 1, &OnlineTraining::state_callback, this)),
       m_sub_reward(nh.subscribe("/reward", 1, &OnlineTraining::reward_callback, this)),
       m_pub_action(nh.advertise<reinforcement_learning_planner::action>("/action", 1)),
+      m_rl_handler("/home/ical/rl_line_tracer/rl_model/online"),
       m_planner_state(PlannerState::INIT),
       m_exit(false)
 {
