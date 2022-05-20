@@ -88,6 +88,7 @@ private:
 
 public:
     RL_handler();
+    RL_handler(const std::string &folder_name);
     ~RL_handler();
 
     using rl_state = relearn::state<semantic_line_state>;
@@ -105,8 +106,6 @@ public:
 
     void init();
     void init_rand_generator();
-
-    void set_file_path(const std::string &model_folder);
 
     void load_model(const std::string &filename);
     void save_model(const std::string &filename);

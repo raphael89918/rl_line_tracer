@@ -18,6 +18,24 @@ RL_handler::RL_handler()
     ROS_INFO("RL_handler constructed");
 }
 
+RL_handler::RL_handler(const std::string &folder_name)
+    : m_rand_gen(),
+      m_learning_rate(0.9),
+      m_discount_factor(0.1),
+      m_epsilon(0.1),
+      m_state{0, 0, 13},
+      m_action{0, 0, 0, 5, 3},
+      m_model_folder(folder_name),
+      state(0.0, m_state),
+      state_next(0.0, m_state),
+      action{m_action},
+      policy(),
+      episode(),
+      learner{m_learning_rate, m_discount_factor}
+{
+    ROS_INFO("RL_handler constructed");
+}
+
 RL_handler::~RL_handler()
 {
     ROS_INFO("RL_handler destructed");
@@ -40,11 +58,6 @@ void RL_handler::init_rand_generator()
     m_rand_gen = std::mt19937(static_cast<std::size_t>(std::chrono::high_resolution_clock::now()
                                                            .time_since_epoch()
                                                            .count()));
-}
-
-void RL_handler::set_file_path(const std::string &model_folder)
-{
-    m_model_folder.assign(model_folder);
 }
 
 void RL_handler::load_model(const std::string &filename)

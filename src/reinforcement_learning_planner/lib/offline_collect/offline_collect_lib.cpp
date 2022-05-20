@@ -11,6 +11,7 @@ OfflineCollect::OfflineCollect(ros::NodeHandle &nh)
       m_sub_reward(nh.subscribe("/reward", 1, &OfflineCollect::reward_callback, this)),
       m_pub_action(nh.advertise<reinforcement_learning_planner::action>("/action", 1)),
       m_sub_action(nh.subscribe("/action", 1, &OfflineCollect::action_callback, this)),
+      m_rl_handler("/home/ical/rl_line_tracer/rl_model/offline"),
       m_planner_state(PlannerState::INIT),
       m_exit(false)
 {
