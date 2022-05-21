@@ -22,7 +22,8 @@ struct semantic_line_state
 
     bool operator==(const semantic_line_state &arg) const
     {
-        return (this->offset_discretization == arg.offset_discretization);
+        return (this->offset_discretization == arg.offset_discretization) &&
+               (this->special_case == arg.special_case);
     }
 };
 
@@ -53,6 +54,7 @@ namespace std
         {
             std::size_t seed = 0;
             relearn::hash_combine(seed, arg.offset_discretization);
+            relearn::hash_combine(seed, arg.special_case);
             return seed;
         }
     };

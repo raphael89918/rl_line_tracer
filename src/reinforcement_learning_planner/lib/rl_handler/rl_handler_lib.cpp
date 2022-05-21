@@ -137,8 +137,6 @@ void RL_handler::load_model(const std::string &filename)
                             auto action_temp = rl_action(driving_action{int8_t(int(j) - 2), int8_t(i)});
                             policy.update(state_temp, action_temp, action_vec[i][j]);
                         }
-                        ROS_INFO("action element: %f, %f, %f, %f, %f", action_vec[i][0], action_vec[i][1],
-                                 action_vec[i][2], action_vec[i][3], action_vec[i][4]);
                     }
                     state_index++;
                     angular_row.clear();
@@ -164,6 +162,40 @@ void RL_handler::load_model(const std::string &filename)
                 // }
             }
             break;
+        }
+
+        if (line.find("boundary: ") != std::string::npos)
+        {
+            ROS_INFO("boundary: %s", line.c_str());
+            std::vector<double> angular_row;
+            std::vector<std::vector<double>> action_vec;
+
+            while (!file.eof())
+            {
+                std::getline(file, line);
+                if (line.find("---") != std::string::npos)
+                    break;
+
+                std::stringstream ss(line);
+                std::string token;
+                while (std::getline(ss, token, ',') && token != " ")
+                {
+                    angular_row.push_back(std::stod(token));
+                }
+                action_vec.push_back(angular_row);
+            }
+
+            for (size_t i = 0; i < 3; i++) //size: 3, linear: 0 ~ 2
+            {
+                for (size_t j = 0; j < 5; j++) //size: 5, angular: -2 ~ 2
+                {
+                    auto action_temp = rl_action(driving_action{int8_t(int(j) - 2), int8_t(i)});
+                    auto state_temp = rl_state(semantic_line_state{0, 1});
+                    policy.update(state_temp, action_temp, action_vec[i][j]);
+                    ROS_INFO("action element: %f, %f, %f, %f, %f", action_vec[i][0], action_vec[i][1],
+                             action_vec[i][2], action_vec[i][3], action_vec[i][4]);
+                }
+            }
         }
     }
 
@@ -246,6 +278,22 @@ void RL_handler::save_model(const std::string &filename)
         }
         file << "\n";
     }
+
+    file << "---";
+
+    file << "boundary: "
+         << "\n";
+
+    for (int8_t linear_index = 0; linear_index <= 2; linear_index++)
+    {
+        for (int8_t angular_index = -2; angular_index <= 2; angular_index++)
+        {
+            file << std::to_string(policy.value(relearn::state(semantic_line_state{0, 1}), relearn::action(driving_action{angular_index, linear_index}))) << ", ";
+        }
+        file << "\n";
+    }
+
+    file << "\n";
 
     file << "---";
 
