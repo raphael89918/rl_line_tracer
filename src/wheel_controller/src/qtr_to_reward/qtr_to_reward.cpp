@@ -103,7 +103,7 @@ void reward_transform::translate(int x[8])
             {
                 r_msg.offset = 3;
             }
-            std::cout << value << std::endl;
+            //std::cout << value << std::endl;
         }
     }
 }
