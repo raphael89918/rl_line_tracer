@@ -124,7 +124,10 @@ void RL_handler::load_model(const std::string &filename)
                 ROS_INFO("file line: %s", line.c_str());
 
                 if (line.find("---") != std::string::npos)
+                {
+                    ROS_INFO("end");
                     break;
+                }
 
                 if (line == "") //update q_table
                 {
@@ -161,12 +164,11 @@ void RL_handler::load_model(const std::string &filename)
                 //     }
                 // }
             }
-            break;
         }
 
         if (line.find("boundary: ") != std::string::npos)
         {
-            ROS_INFO("boundary: %s", line.c_str());
+            ROS_INFO("boundary: %s!!!!!!!!!!!!!!!!!!!!!!!!", line.c_str());
             std::vector<double> angular_row;
             std::vector<std::vector<double>> action_vec;
 
@@ -279,7 +281,8 @@ void RL_handler::save_model(const std::string &filename)
         file << "\n";
     }
 
-    file << "---";
+    file << "---"
+         << "\n";
 
     file << "boundary: "
          << "\n";

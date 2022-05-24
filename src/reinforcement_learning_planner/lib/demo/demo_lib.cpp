@@ -8,7 +8,7 @@ Demo::Demo()
 Demo::Demo(ros::NodeHandle &nh, DemoChoice demo_choice)
     : m_nh(nh),
       m_sub_state(nh.subscribe("/state", 1, &Demo::state_callback, this)),
-      m_pub_action(nh.advertise<reinforcement_learning_planner::action>("/action", 1)),
+      m_pub_action(nh.advertise<reinforcement_learning_planner::action>("/wheel/control", 1)),
       m_demo_choice(demo_choice),
       m_rl_handler(choice_to_filepath()),
       m_planner_state(PlannerState::INIT),
@@ -171,11 +171,6 @@ void Demo::plan()
 void Demo::state_callback(const reinforcement_learning_planner::state &msg)
 {
     m_state_msg = msg;
-}
-
-void Demo::action_callback(const reinforcement_learning_planner::action &msg)
-{
-    m_action_pub_msg = msg;
 }
 
 void Demo::get_state()

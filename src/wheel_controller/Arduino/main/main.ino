@@ -37,5 +37,5 @@ void loop()
     //motor_controller.spin_once();
     MyQTR.pubQTR();
     nh.spinOnce();
-    delay(100);
+    delay(10);
 }

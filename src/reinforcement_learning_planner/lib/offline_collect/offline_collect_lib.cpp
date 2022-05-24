@@ -190,14 +190,24 @@ void OfflineCollect::action_callback(const reinforcement_learning_planner::actio
 void OfflineCollect::get_state_reward()
 {
     semantic_line_state next_state = {m_state_msg.offset, m_state_msg.special_case};
-    double reward = m_reward_msg.offset;
+
+    double reward = 0;
+
+    if (m_state_msg.offset == 1 || m_state_msg.offset == -1 || m_state_msg.offset == 0)
+    {
+        reward = 5;
+    }
+    else if (m_state_msg.offset == 2 || m_state_msg.offset == -2)
+    {
+        reward = 3;
+    }
+    else if (m_state_msg.offset == 3 || m_state_msg.offset == -3)
+    {
+        reward = 1;
+    }
     if (m_reward_msg.out_of_line)
     {
-        reward -= 20.0;
-    }
-    if (m_state_msg.special_case)
-    {
-        reward -= 10.0;
+        reward = -10.0;
     }
 
     m_rl_handler.set_next_state(reward, next_state);
