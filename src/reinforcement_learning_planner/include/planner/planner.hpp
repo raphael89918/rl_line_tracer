@@ -8,3 +8,9 @@ enum class PlannerState
     EXECUTING,
     TERMINATED
 };
+
+enum class RotateDirection
+{
+    LEFT,
+    RIGHT
+};
