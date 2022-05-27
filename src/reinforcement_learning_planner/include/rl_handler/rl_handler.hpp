@@ -19,6 +19,12 @@ struct semantic_line_state
     uint8_t special_case;
 
     uint8_t state_size; // state_size = 13
+    uint8_t case_size; // case_size = 3
+
+    int8_t offset_upper_bound; // offset_upper_bound = 6
+    int8_t offset_lower_bound; // offset_lower_bound = -6
+    int8_t special_case_upper_bound; // special_case_upper_bound = 1
+    int8_t special_case_lower_bound; // special_case_lower_bound = 0
 
     bool operator==(const semantic_line_state &arg) const
     {
@@ -31,10 +37,17 @@ struct driving_action
 {
     int8_t angular_discretization; // range: -2 ~ 2
     int8_t linear_discretization;  // range: 0 ~ 2
-    bool revert;
+    uint8_t special_case;   // range: 0 ~ 1
 
     uint8_t angular_size; // angular_size = 5
     uint8_t linear_size;  // linear_size = 3
+
+    int8_t angular_upper_bound; // angular_upper_bound = 2
+    int8_t angular_lower_bound; // angular_lower_bound = -2
+    int8_t linear_upper_bound;  // linear_upper_bound = 2
+    int8_t linear_lower_bound;  // linear_lower_bound = 0
+    int8_t special_case_upper_bound; // special_case_upper_bound = 1
+    int8_t special_case_lower_bound; // special_case_lower_bound = 0
 
     bool operator==(const driving_action &arg) const
     {
@@ -83,8 +96,8 @@ private:
     double m_discount_factor;
     double m_epsilon;
 
-    semantic_line_state m_state;
-    driving_action m_action;
+    const semantic_line_state m_state;
+    const driving_action m_action;
 
     const std::filesystem::path m_model_folder; //folder preset path: rl_model/online
 
@@ -115,10 +128,12 @@ public:
     std::string get_recent_filename();
 
     void get_action_epsilon();
+    void get_action_epsilon_sort();
 
     void set_action(driving_action &action);
     void rand_action();
     void best_action();
+    void best_action_sort();
 
     void set_state(double reward, semantic_line_state &state);
     void set_next_state(double reward, semantic_line_state &state_next);

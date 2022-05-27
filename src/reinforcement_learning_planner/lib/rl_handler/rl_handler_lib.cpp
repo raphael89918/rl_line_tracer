@@ -5,8 +5,8 @@ RL_handler::RL_handler()
       m_learning_rate(0.9),
       m_discount_factor(0.1),
       m_epsilon(0.1),
-      m_state{0, 0, 13},
-      m_action{0, 0, 0, 5, 3},
+      m_state{0, 0, 13, 3, 6, -6, 1, 0},
+      m_action{0, 0, 0, 5, 3, 2, -2, 2, 0, 1, 0},
       m_model_folder("/home/ical/rl_line_tracer/rl_model/online"),
       state(0.0, m_state),
       state_next(0.0, m_state),
@@ -23,8 +23,8 @@ RL_handler::RL_handler(const std::string &folder_name)
       m_learning_rate(0.9),
       m_discount_factor(0.1),
       m_epsilon(0.1),
-      m_state{0, 0, 13},
-      m_action{0, 0, 0, 5, 3},
+      m_state{0, 0, 13, 3, 6, -6, 1, 0},
+      m_action{0, 0, 0, 5, 3, 2, -2, 2, 0, 1, 0},
       m_model_folder(folder_name),
       state(0.0, m_state),
       state_next(0.0, m_state),
@@ -114,7 +114,7 @@ void RL_handler::load_model(const std::string &filename)
         }
         if (line.find("q_table:") != std::string::npos)
         {
-            int8_t state_index = -6;
+            int8_t state_index = m_state.offset_lower_bound;
             std::vector<std::vector<double>> action_vec;
             std::vector<double> angular_row;
 
@@ -133,12 +133,12 @@ void RL_handler::load_model(const std::string &filename)
                 {
                     auto state_temp = rl_state(semantic_line_state{state_index});
                     ROS_INFO("state index:%d", state_index);
-                    for (size_t i = 0; i < 3; i++) //size: 3, linear: 0 ~ 2
+                    for (int8_t i = m_action.linear_lower_bound; i < m_action.linear_upper_bound; i++) //size: 3, linear: 0 ~ 2
                     {
-                        for (size_t j = 0; j < 5; j++) //size: 5, angular: -2 ~ 2
+                        for (int8_t j = m_action.angular_lower_bound; j <= m_action.angular_upper_bound; j++) //size: 5, angular: -2 ~ 2
                         {
-                            auto action_temp = rl_action(driving_action{int8_t(int(j) - 2), int8_t(i)});
-                            policy.update(state_temp, action_temp, action_vec[i][j]);
+                            auto action_temp = rl_action(driving_action{j, i});
+                            policy.update(state_temp, action_temp, action_vec[i][j + 2]);
                         }
                     }
                     state_index++;
@@ -187,13 +187,13 @@ void RL_handler::load_model(const std::string &filename)
                 action_vec.push_back(angular_row);
             }
 
-            for (size_t i = 0; i < 3; i++) //size: 3, linear: 0 ~ 2
+            for (int8_t i = m_action.linear_lower_bound; i <= m_action.linear_upper_bound; i++) //size: 3, linear: 0 ~ 2
             {
-                for (size_t j = 0; j < 5; j++) //size: 5, angular: -2 ~ 2
+                for (int8_t j = m_action.angular_lower_bound; j < m_action.angular_upper_bound; j++) //size: 5, angular: -2 ~ 2
                 {
-                    auto action_temp = rl_action(driving_action{int8_t(int(j) - 2), int8_t(i)});
+                    auto action_temp = rl_action(driving_action{j, i});
                     auto state_temp = rl_state(semantic_line_state{0, 1});
-                    policy.update(state_temp, action_temp, action_vec[i][j]);
+                    policy.update(state_temp, action_temp, action_vec[i][j + 2]);
                     ROS_INFO("action element: %f, %f, %f, %f, %f", action_vec[i][0], action_vec[i][1],
                              action_vec[i][2], action_vec[i][3], action_vec[i][4]);
                 }
@@ -204,12 +204,12 @@ void RL_handler::load_model(const std::string &filename)
     //checking policy logging
     ROS_INFO("Q_table checking:");
 
-    for (int8_t state_index = -6; state_index <= 6; state_index++)
+    for (int8_t state_index = m_state.offset_lower_bound; state_index <= m_state.offset_upper_bound; state_index++)
     {
-        for (int8_t linear_index = 0; linear_index <= 2; linear_index++)
+        for (int8_t linear_index = m_action.linear_lower_bound; linear_index <= m_action.linear_upper_bound; linear_index++)
         {
             ROS_INFO("state: %d", state_index);
-            for (int8_t angular_index = -2; angular_index <= 2; angular_index++)
+            for (int8_t angular_index = m_action.angular_lower_bound; angular_index <= m_action.angular_upper_bound; angular_index++)
             {
                 ROS_INFO("%s, ", std::to_string(policy.value(relearn::state(semantic_line_state{state_index}), relearn::action(driving_action{angular_index, linear_index}))).c_str());
             }
@@ -265,14 +265,16 @@ void RL_handler::save_model(const std::string &filename)
     file << "---"
          << "\n";
 
+    ROS_INFO("saving qtable");
+
     file << "q_table: "
          << "\n";
 
-    for (int8_t state_index = -6; state_index <= 6; state_index++)
+    for (int8_t state_index = m_state.offset_lower_bound; state_index <= m_state.offset_upper_bound; state_index++)
     {
-        for (int8_t linear_index = 0; linear_index <= 2; linear_index++)
+        for (int8_t linear_index = m_action.linear_lower_bound; linear_index <= m_action.linear_upper_bound; linear_index++)
         {
-            for (int8_t angular_index = -2; angular_index <= 2; angular_index++)
+            for (int8_t angular_index = m_action.angular_lower_bound; angular_index <= m_action.angular_upper_bound; angular_index++)
             {
                 file << std::to_string(policy.value(relearn::state(semantic_line_state{state_index}), relearn::action(driving_action{angular_index, linear_index}))) << ", ";
             }
@@ -281,15 +283,17 @@ void RL_handler::save_model(const std::string &filename)
         file << "\n";
     }
 
+    ROS_INFO("saving boundary");
+
     file << "---"
          << "\n";
 
     file << "boundary: "
          << "\n";
 
-    for (int8_t linear_index = 0; linear_index <= 2; linear_index++)
+    for (int8_t linear_index = m_action.linear_lower_bound; linear_index <= m_action.linear_upper_bound; linear_index++)
     {
-        for (int8_t angular_index = -2; angular_index <= 2; angular_index++)
+        for (int8_t angular_index = m_action.angular_lower_bound; angular_index <= m_action.angular_upper_bound; angular_index++)
         {
             file << std::to_string(policy.value(relearn::state(semantic_line_state{0, 1}), relearn::action(driving_action{angular_index, linear_index}))) << ", ";
         }
@@ -343,6 +347,15 @@ void RL_handler::get_action_epsilon() //epsilon greedy
         rand_action();
 }
 
+void RL_handler::get_action_epsilon_sort()
+{
+    std::uniform_real_distribution<double> rand_num(0.0, 1.0);
+    if (rand_num(m_rand_gen) > m_epsilon)
+        best_action_sort(); //selected from the policy
+    else
+        rand_action();
+}
+
 void RL_handler::set_action(driving_action &new_action)
 {
     action = driving_action(new_action);
@@ -351,11 +364,25 @@ void RL_handler::set_action(driving_action &new_action)
 
 void RL_handler::rand_action()
 {
-    std::uniform_int_distribution<int8_t> angular_gen(-2, 2);
-    std::uniform_int_distribution<int8_t> linear_gen(0, 2);
+    std::uniform_int_distribution<int8_t> angular_gen(m_action.angular_lower_bound, m_action.angular_upper_bound);
+    std::uniform_int_distribution<int8_t> linear_gen(m_action.linear_lower_bound, m_action.linear_upper_bound);
 
     auto angular = angular_gen(m_rand_gen);
     auto linear = linear_gen(m_rand_gen);
+
+    if (linear == 0)
+    {
+        if (angular > 0)
+            angular = 2;
+        else if (angular < 0)
+            angular = -2;
+        else
+        {
+            //rand 2 or -2
+            std::uniform_int_distribution<int8_t> angular_gen(0, 1);
+            angular = angular_gen(m_rand_gen) * 2 - 1;
+        }
+    }
 
     action = rl_action(driving_action{angular, linear});
 
@@ -365,6 +392,7 @@ void RL_handler::rand_action()
 void RL_handler::best_action()
 {
     auto action_ptr = policy.best_action(state);
+
     if (action_ptr == nullptr)
     {
         ROS_INFO("No action found, switching to random action");
@@ -372,9 +400,46 @@ void RL_handler::best_action()
         rand_action();
         return;
     }
-    ROS_INFO("Best action: %d, %d", action_ptr->trait().angular_discretization, action_ptr->trait().linear_discretization);
 
-    action = *(action_ptr);
+    rl_action action_temp = *action_ptr;
+
+    if (action_temp.trait().linear_discretization == 0)
+    {
+        int8_t angular = action_temp.trait().angular_discretization;
+        if (angular > 0)
+            angular = 2;
+        else if (angular < 0)
+            angular = -2;
+        else
+        {
+            //rand 2 or -2
+            std::uniform_int_distribution<int8_t> angular_gen(0, 1);
+            angular = angular_gen(m_rand_gen) * 2 - 1;
+        }
+        action_temp = rl_action(driving_action{angular, 0});
+    }
+
+    action = action_temp;
+
+    ROS_INFO("Random action: %d, %d", action.trait().angular_discretization, action.trait().linear_discretization);
+}
+
+void RL_handler::best_action_sort()
+{
+    //insert 2d vector from all action
+    //TODO
+
+    std::vector<std::vector<double>> actions;
+    std::vector<double> action_angular;
+
+    for (int8_t linear_index = m_action.linear_lower_bound; linear_index <= m_action.linear_upper_bound; linear_index++)
+    {
+        for (int8_t angular_index = m_action.angular_lower_bound; angular_index <= m_action.angular_upper_bound; angular_index++)
+        {
+            //action_angular.push_back(policy.value(state, rl_action(driving_action{angular_index, linear_index})));
+        }
+        //actions.push_back(action_angular);
+    }
 }
 
 void RL_handler::set_state(double reward, semantic_line_state &state_trait)
