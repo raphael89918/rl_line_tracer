@@ -15,10 +15,17 @@
 
 class OnlineTraining
 {
+
+    using rl_state = relearn::state<semantic_line_state>;
+    using rl_action = relearn::action<driving_action>;
+    using rl_episode = relearn::link<rl_state, rl_action>;
+
 public:
     OnlineTraining();
     OnlineTraining(ros::NodeHandle &nh);
     ~OnlineTraining();
+
+    int get_execute_rate();
 
     void init();    //initialize the planner
     void start();   //start the planner
@@ -26,15 +33,19 @@ public:
     void execute();
 
     void stop_wheel();
+    void rotate_wheel();
+    void revert_wheel(std::reverse_iterator<std::deque<rl_episode>::iterator> it);
 
     void plan(); //plan online training
 
     void get_state_reward();
     void set_action();
 
+    void out_of_bounds_trap();
+
 private:
     ros::NodeHandle m_nh;
-    
+
     ros::Subscriber m_sub_state;
     ros::Subscriber m_sub_reward;
     ros::Publisher m_pub_action;
@@ -48,6 +59,8 @@ private:
 
     void state_callback(const reinforcement_learning_planner::state &msg);
     void reward_callback(const reinforcement_learning_planner::reward &msg);
+
+    int m_execute_rate;
 
     bool m_exit;
 };
