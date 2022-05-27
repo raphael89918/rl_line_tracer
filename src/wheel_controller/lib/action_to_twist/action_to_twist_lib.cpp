@@ -69,4 +69,12 @@ void action_transform::translate(double linear, double angular)
     {
         t_msg.linear.x = 0.15;
     }
+    if(linear == -1)
+    {
+        t_msg.linear.x = -0.05;
+    }
+    if(linear == -2)
+    {
+        t_msg.linear.x = -0.15;
+    }
 }
