@@ -413,7 +413,7 @@ void RL_handler::rand_action()
 
     if(angular == 0)
     {
-        if (linear == 2 || linear == -2)
+        if (linear == 2 || linear == 0)
         {
             rand_action();
             return;
