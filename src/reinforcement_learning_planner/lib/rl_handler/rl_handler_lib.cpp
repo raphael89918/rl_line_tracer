@@ -411,6 +411,15 @@ void RL_handler::rand_action()
         }
     }
 
+    if(angular == 0)
+    {
+        if (linear == 2 || linear == -2)
+        {
+            rand_action();
+            return;
+        }
+    }
+
     action = rl_action(driving_action{angular, linear});
 
     ROS_INFO("Random action: %d, %d", action.trait().angular_discretization, action.trait().linear_discretization);
