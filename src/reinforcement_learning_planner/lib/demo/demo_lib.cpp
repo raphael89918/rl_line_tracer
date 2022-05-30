@@ -26,6 +26,7 @@ void Demo::init()
 {
     m_rl_handler.init();
     m_rl_handler.load_model(m_rl_handler.get_recent_filename());
+    m_rl_handler.ban_actions();
 }
 
 void Demo::start()
@@ -113,7 +114,7 @@ void Demo::execute()
     //initialize first state
     ros::spinOnce();
     semantic_line_state state_trait = {m_state_msg.offset};
-    //m_rl_handler.set_state(m_reward_msg.offset, state_trait);
+    m_rl_handler.set_state(0, state_trait);
 
     while (true)
     {
@@ -199,4 +200,5 @@ std::string Demo::choice_to_filepath()
     {
         return "/home/ical/rl_line_tracer/rl_model/online";
     }
+    return "";
 }
