@@ -411,7 +411,7 @@ void RL_handler::rand_action()
         }
     }
 
-    if(angular == 0)
+    if (angular == 0)
     {
         if (linear == 2 || linear == 0)
         {
