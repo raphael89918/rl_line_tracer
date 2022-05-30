@@ -1,11 +1,14 @@
 #include "rl_handler/rl_handler.hpp"
 
+using rl_state = relearn::state<semantic_line_state>;
+using rl_action = relearn::action<driving_action>;
+
 RL_handler::RL_handler()
     : m_rand_gen(),
       m_learning_rate(0.9),
       m_discount_factor(0.1),
       m_epsilon(0.1),
-      m_state{0, 0, 13, 3, 6, -6, 1, 0},
+      m_state{0, 0, 9, 3, 4, -4, 1, 0},
       m_action{0, 0, 0, 5, 3, 2, -2, 2, 0, 1, 0},
       m_model_folder("/home/ical/rl_line_tracer/rl_model/online"),
       state(0.0, m_state),
@@ -23,7 +26,7 @@ RL_handler::RL_handler(const std::string &folder_name)
       m_learning_rate(0.9),
       m_discount_factor(0.1),
       m_epsilon(0.1),
-      m_state{0, 0, 13, 3, 6, -6, 1, 0},
+      m_state{0, 0, 9, 3, 4, -4, 1, 0},
       m_action{0, 0, 0, 5, 3, 2, -2, 2, 0, 1, 0},
       m_model_folder(folder_name),
       state(0.0, m_state),
@@ -51,6 +54,7 @@ void RL_handler::init()
 
     episode.clear();
     policy.clear();
+    m_revert_vector.clear();
 }
 
 void RL_handler::init_rand_generator()
@@ -133,7 +137,7 @@ void RL_handler::load_model(const std::string &filename)
                 {
                     auto state_temp = rl_state(semantic_line_state{state_index});
                     ROS_INFO("state index:%d", state_index);
-                    for (int8_t i = m_action.linear_lower_bound; i < m_action.linear_upper_bound; i++) //size: 3, linear: 0 ~ 2
+                    for (int8_t i = m_action.linear_lower_bound; i <= m_action.linear_upper_bound; i++) //size: 3, linear: 0 ~ 2
                     {
                         for (int8_t j = m_action.angular_lower_bound; j <= m_action.angular_upper_bound; j++) //size: 5, angular: -2 ~ 2
                         {
@@ -189,7 +193,7 @@ void RL_handler::load_model(const std::string &filename)
 
             for (int8_t i = m_action.linear_lower_bound; i <= m_action.linear_upper_bound; i++) //size: 3, linear: 0 ~ 2
             {
-                for (int8_t j = m_action.angular_lower_bound; j < m_action.angular_upper_bound; j++) //size: 5, angular: -2 ~ 2
+                for (int8_t j = m_action.angular_lower_bound; j <= m_action.angular_upper_bound; j++) //size: 5, angular: -2 ~ 2
                 {
                     auto action_temp = rl_action(driving_action{j, i});
                     auto state_temp = rl_state(semantic_line_state{0, 1});
@@ -338,6 +342,18 @@ std::string RL_handler::get_recent_filename()
     return filename;
 }
 
+void RL_handler::push_revert_vector()
+{
+    m_revert_vector.push_back({state, action});
+}
+
+relearn::link<rl_state, rl_action> RL_handler::pop_revert_vector()
+{
+    relearn::link<rl_state, rl_action> link = m_revert_vector.back();
+    m_revert_vector.pop_back();
+    return link;
+}
+
 void RL_handler::get_action_epsilon() //epsilon greedy
 {
     std::uniform_real_distribution<double> rand_num(0.0, 1.0);
@@ -347,19 +363,35 @@ void RL_handler::get_action_epsilon() //epsilon greedy
         rand_action();
 }
 
-void RL_handler::get_action_epsilon_sort()
-{
-    std::uniform_real_distribution<double> rand_num(0.0, 1.0);
-    if (rand_num(m_rand_gen) > m_epsilon)
-        best_action_sort(); //selected from the policy
-    else
-        rand_action();
-}
-
 void RL_handler::set_action(driving_action &new_action)
 {
     action = driving_action(new_action);
     ROS_INFO("action: %d, %d", action.trait().angular_discretization, action.trait().linear_discretization);
+}
+
+void RL_handler::ban_action(driving_action &ban_action)
+{
+    for (int8_t state_index = m_state.offset_lower_bound; state_index <= m_state.offset_upper_bound; state_index++)
+    {
+        auto state_temp = rl_state(semantic_line_state{state_index});
+        auto action_temp = rl_action(ban_action);
+        policy.update(state_temp, action_temp, -10000000);
+    }
+}
+
+void RL_handler::ban_actions()
+{
+    driving_action temp{0, 0};
+    ban_action(temp);
+
+    temp = {0, 2};
+    ban_action(temp);
+
+    temp = {2, 0};
+    ban_action(temp);
+
+    temp = {-2, 0};
+    ban_action(temp);
 }
 
 void RL_handler::rand_action()
@@ -372,15 +404,10 @@ void RL_handler::rand_action()
 
     if (linear == 0)
     {
-        if (angular > 0)
-            angular = 2;
-        else if (angular < 0)
-            angular = -2;
-        else
+        if (angular == 2 || angular == -2)
         {
-            //rand 2 or -2
-            std::uniform_int_distribution<int8_t> angular_gen(0, 1);
-            angular = angular_gen(m_rand_gen) * 2 - 1;
+            rand_action();
+            return;
         }
     }
 
@@ -403,43 +430,9 @@ void RL_handler::best_action()
 
     rl_action action_temp = *action_ptr;
 
-    if (action_temp.trait().linear_discretization == 0)
-    {
-        int8_t angular = action_temp.trait().angular_discretization;
-        if (angular > 0)
-            angular = 2;
-        else if (angular < 0)
-            angular = -2;
-        else
-        {
-            //rand 2 or -2
-            std::uniform_int_distribution<int8_t> angular_gen(0, 1);
-            angular = angular_gen(m_rand_gen) * 2 - 1;
-        }
-        action_temp = rl_action(driving_action{angular, 0});
-    }
-
     action = action_temp;
 
     ROS_INFO("Random action: %d, %d", action.trait().angular_discretization, action.trait().linear_discretization);
-}
-
-void RL_handler::best_action_sort()
-{
-    //insert 2d vector from all action
-    //TODO
-
-    std::vector<std::vector<double>> actions;
-    std::vector<double> action_angular;
-
-    for (int8_t linear_index = m_action.linear_lower_bound; linear_index <= m_action.linear_upper_bound; linear_index++)
-    {
-        for (int8_t angular_index = m_action.angular_lower_bound; angular_index <= m_action.angular_upper_bound; angular_index++)
-        {
-            //action_angular.push_back(policy.value(state, rl_action(driving_action{angular_index, linear_index})));
-        }
-        //actions.push_back(action_angular);
-    }
 }
 
 void RL_handler::set_state(double reward, semantic_line_state &state_trait)
