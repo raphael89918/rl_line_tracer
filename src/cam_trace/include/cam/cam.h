@@ -17,13 +17,15 @@ class Cam{
     private:
         Mat final;
         ros::NodeHandle nh_;
+        VideoCapture cap;
 
     public:
         Cam(ros::NodeHandle &nh);
         ~Cam();
         void Show();
         Mat frame;
-        void Callback(const sensor_msgs::ImageConstPtr& msg);
+        bool Capture();
+      //  void Callback(const sensor_msgs::ImageConstPtr& msg);
 };
 
 #endif

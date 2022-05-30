@@ -1,11 +1,5 @@
 <launch>
 <node name="cam" pkg="cam_trace" type="cam_node" />
 
-<include file = "$(find realsense2_camera)/launch/rs_camera.launch">
-<arg name = "enable_infra" default = "true"/>
-<arg name="infra_width"         default="640"/>
-<arg name="infra_height"        default="480"/>
-
-</include>
 
 </launch>

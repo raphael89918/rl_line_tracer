@@ -241,16 +241,6 @@ void ltproc::find_offset()
             msg.offset =4;
             msg.special_case = 0;
         }
-        else if((cam_offset>45)&&(cam_offset<=55))
-        {
-            msg.offset =5;
-            msg.special_case = 0;
-        }
-        else if((cam_offset>55)&&(cam_offset<=65))
-        {
-            msg.offset =6;
-            msg.special_case = 0;
-        }
         else if((cam_offset>=-15)&&(cam_offset<-5))
         {
             msg.offset =-1;
@@ -269,16 +259,6 @@ void ltproc::find_offset()
         else if((cam_offset>=-45)&&(cam_offset<-35))
         {
             msg.offset =-4;
-            msg.special_case = 0;
-        }
-        else if((cam_offset>=-55)&&(cam_offset<-45))
-        {
-            msg.offset =-5;
-            msg.special_case = 0;
-        }
-        else if((cam_offset>=-65)&&(cam_offset<-55))
-        {
-            msg.offset =-6;
             msg.special_case = 0;
         }
     }
