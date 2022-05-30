@@ -30,51 +30,85 @@ void action_transform::execute()
 
 void action_transform::translate(double linear, double angular)
 {
-    if(angular == 0)
-    {
-        t_msg.angular.z = 0;
-    }
-
-    if(angular == 1)
-    {
-        t_msg.angular.z = 0.25;
-    }
-
-    if(angular == 2)
-    {
-        t_msg.angular.z = 0.75;
-    }
-
-    if(angular == -1)
-    {
-        t_msg.angular.z = -0.25;
-    }
-
-    if(angular == -2)
-    {
-        t_msg.angular.z = -0.75;
-    }
 
     if(linear == 0)
     {
         t_msg.linear.x = 0;
+        if(angular>0)
+        {
+            t_msg.angular.z = 1;
+        }
+        if(angular<0)
+        {
+            t_msg.angular.z = -1;
+        }
+        if(angular==0)
+        {
+            t_msg.angular.z = 0;
+        }
     }
 
     if(linear == 1)
     {
-        t_msg.linear.x = 0.05;
+        if(angular != 0)
+        {
+            t_msg.linear.x = 0.05;
+
+            if(angular == 0)
+            {
+                t_msg.angular.z = 0;
+            }
+
+            if(angular == 1)
+            {
+                t_msg.angular.z = 0.25;
+            }
+
+            if(angular == 2)
+            {
+                t_msg.angular.z = 0.75;
+            }
+
+            if(angular == -1)
+            {
+                t_msg.angular.z = -0.25;
+            }
+
+            if(angular == -2)
+            {
+                t_msg.angular.z = -0.75;
+            }
+        }
+        else
+        {
+            t_msg.angular.z = 0;
+            t_msg.linear.x = 0.15;
+        }
+
     }
 
     if(linear == 2)
     {
+
         t_msg.linear.x = 0.15;
-    }
-    if(linear == -1)
-    {
-        t_msg.linear.x = -0.05;
-    }
-    if(linear == -2)
-    {
-        t_msg.linear.x = -0.15;
+        if(angular == 1)
+        {
+            t_msg.angular.z = 0.25;
+        }
+
+        if(angular == 2)
+        {
+            t_msg.angular.z = 0.75;
+        }
+
+        if(angular == -1)
+        {
+            t_msg.angular.z = -0.25;
+        }
+
+        if(angular == -2)
+        {
+            t_msg.angular.z = -0.75;
+        }
     }
 }
