@@ -38,6 +38,7 @@ void OnlineTraining::init()
 {
     m_rl_handler.init();
     m_rl_handler.load_model(m_rl_handler.get_recent_filename());
+    m_rl_handler.ban_actions();
 }
 
 void OnlineTraining::start()
@@ -172,25 +173,15 @@ void OnlineTraining::rotate_wheel()
     m_pub_action.publish(m_action_msg);
 }
 
-void OnlineTraining::revert_wheel(std::reverse_iterator<std::deque<rl_episode>::iterator> it)
+void OnlineTraining::revert_wheel()
 {
-    //get action from episode
+    rl_episode episode = m_rl_handler.pop_revert_vector();
 
-    if (it == m_rl_handler.episode.rend())
-    {
-        ROS_WARN("wheel queue is empty");
-        return;
-    }
-
-    relearn::link temp_episode = *it;
-
-    m_action_msg.linear_action = -temp_episode.action.trait().linear_discretization;
-    m_action_msg.angular_action = -temp_episode.action.trait().angular_discretization;
+    m_action_msg.linear_action = -episode.action.trait().linear_discretization;
+    m_action_msg.angular_action = -episode.action.trait().angular_discretization;
     m_pub_action.publish(m_action_msg);
 
-    ROS_INFO("linear: %d, angular: %d", m_action_msg.linear_action, m_action_msg.angular_action);
-
-    ROS_INFO("iteration: %ld", it - m_rl_handler.episode.rbegin());
+    ROS_INFO("Revert action: %d, %d", m_action_msg.linear_action, m_action_msg.angular_action);
 
     return;
 }
@@ -203,6 +194,9 @@ void OnlineTraining::plan()
     m_rl_handler.get_action_epsilon();
 
     set_action();
+
+    m_rl_handler.push_revert_vector();
+
     time_step.sleep(); //giving some time to react and observe the state/reward
     ros::spinOnce();
     get_state_reward();
@@ -262,16 +256,13 @@ void OnlineTraining::set_action()
 void OnlineTraining::out_of_bounds_trap()
 {
     ros::Rate time_step(get_execute_rate());
-    auto it = m_rl_handler.episode.rbegin();
 
     while (m_reward_msg.out_of_line == 1)
     {
-        revert_wheel(it);
-        //rotate_wheel();
+        revert_wheel();
         ROS_INFO("fixing out of bounds");
         time_step.sleep();
         ros::spinOnce();
         ROS_INFO("%d", m_reward_msg.out_of_line);
-        it++;
     }
 }

@@ -34,7 +34,7 @@ public:
 
     void stop_wheel();
     void rotate_wheel();
-    void revert_wheel(std::reverse_iterator<std::deque<rl_episode>::iterator> it);
+    void revert_wheel();
 
     void plan(); //plan online training
 
