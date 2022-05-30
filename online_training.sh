@@ -1,5 +1,0 @@
-source devel/setup.bash
-roslaunch wheel_controller rockerCtrl_twist.launch
-roslaunch cam_trace getoffset.launch
-
-roslaunch reinforcement_learning_planner online_training.launch
