@@ -175,13 +175,19 @@ void OnlineTraining::rotate_wheel()
 
 void OnlineTraining::revert_wheel()
 {
+    if (m_rl_handler.is_revert_vector_empty())
+    {
+        ROS_INFO("cannot revert, now rotate wheel");
+        rotate_wheel();
+        return;
+    }
     rl_episode episode = m_rl_handler.pop_revert_vector();
 
     m_action_msg.linear_action = -episode.action.trait().linear_discretization;
     m_action_msg.angular_action = -episode.action.trait().angular_discretization;
     m_pub_action.publish(m_action_msg);
 
-    ROS_INFO("Revert action: %d, %d", m_action_msg.linear_action, m_action_msg.angular_action);
+    ROS_INFO("Revert action: %d, %d", m_action_msg.angular_action, m_action_msg.linear_action);
 
     return;
 }
@@ -189,7 +195,7 @@ void OnlineTraining::revert_wheel()
 void OnlineTraining::plan()
 {
     ros::Rate time_step(get_execute_rate());
-    ROS_INFO("plan_q_learning");
+    //ROS_INFO("plan_q_learning");
 
     m_rl_handler.get_action_epsilon();
 
@@ -225,19 +231,19 @@ void OnlineTraining::get_state_reward()
 
     if (m_state_msg.offset == 1 || m_state_msg.offset == -1 || m_state_msg.offset == 0)
     {
-        reward = 5;
+        reward = 0.5;
     }
     else if (m_state_msg.offset == 2 || m_state_msg.offset == -2)
     {
-        reward = 3;
+        reward = 0.3;
     }
     else if (m_state_msg.offset == 3 || m_state_msg.offset == -3)
     {
-        reward = 1;
+        reward = 0.1;
     }
     if (m_reward_msg.out_of_line)
     {
-        reward = -10.0;
+        reward = -10000.0;
     }
 
     m_rl_handler.set_next_state(reward, next_state);
@@ -250,19 +256,19 @@ void OnlineTraining::set_action()
     m_action_msg.revert = false;
 
     m_pub_action.publish(m_action_msg);
-    ROS_INFO("Setting action:%d, %d", m_action_msg.angular_action, m_action_msg.linear_action);
+    ROS_INFO("Setting action: %d, %d", m_action_msg.angular_action, m_action_msg.linear_action);
 }
 
 void OnlineTraining::out_of_bounds_trap()
 {
     ros::Rate time_step(get_execute_rate());
 
-    while (m_reward_msg.out_of_line == 1)
+    while (m_reward_msg.out_of_line == 1 || m_state_msg.special_case == 1)
     {
         revert_wheel();
-        ROS_INFO("fixing out of bounds");
+        //ROS_INFO("fixing out of bounds");
         time_step.sleep();
         ros::spinOnce();
-        ROS_INFO("%d", m_reward_msg.out_of_line);
+        //ROS_INFO("%d", m_reward_msg.out_of_line);
     }
 }
