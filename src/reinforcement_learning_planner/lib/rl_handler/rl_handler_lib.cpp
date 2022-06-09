@@ -345,13 +345,25 @@ std::string RL_handler::get_recent_filename()
 void RL_handler::push_revert_vector()
 {
     m_revert_vector.push_back({state, action});
+    ROS_INFO("stack size: %ld", m_revert_vector.size());
 }
 
 relearn::link<rl_state, rl_action> RL_handler::pop_revert_vector()
 {
     relearn::link<rl_state, rl_action> link = m_revert_vector.back();
     m_revert_vector.pop_back();
+    ROS_INFO("stack size: %ld", m_revert_vector.size());
     return link;
+}
+
+bool RL_handler::is_revert_vector_empty()
+{
+    return m_revert_vector.empty();
+}
+
+size_t RL_handler::get_revert_vector_size()
+{
+    return m_revert_vector.size();
 }
 
 void RL_handler::get_action_epsilon() //epsilon greedy
@@ -422,7 +434,7 @@ void RL_handler::rand_action()
 
     action = rl_action(driving_action{angular, linear});
 
-    ROS_INFO("Random action: %d, %d", action.trait().angular_discretization, action.trait().linear_discretization);
+    //ROS_INFO("Random action: %d, %d", action.trait().angular_discretization, action.trait().linear_discretization);
 }
 
 void RL_handler::best_action()
@@ -441,24 +453,24 @@ void RL_handler::best_action()
 
     action = action_temp;
 
-    ROS_INFO("Random action: %d, %d", action.trait().angular_discretization, action.trait().linear_discretization);
+    //ROS_INFO("Random action: %d, %d", action.trait().angular_discretization, action.trait().linear_discretization);
 }
 
 void RL_handler::set_state(double reward, semantic_line_state &state_trait)
 {
     state = relearn::state(reward, state_trait);
-    ROS_INFO("got state: %f, %d", state.reward(), state.trait().offset_discretization);
+    //ROS_INFO("got state: %f, %d", state.reward(), state.trait().offset_discretization);
 }
 
 void RL_handler::set_next_state(double reward, semantic_line_state &next_state)
 {
     state_next = rl_state(reward, next_state);
-    ROS_INFO("got next state: %f, %d", state_next.reward(), state_next.trait().offset_discretization);
+    //ROS_INFO("got next state: %f, %d", state_next.reward(), state_next.trait().offset_discretization);
 }
 
 void RL_handler::update_state()
 {
-    ROS_INFO("Update state");
+    //ROS_INFO("Update state");
     state = state_next;
 }
 
@@ -469,11 +481,11 @@ void RL_handler::update_episode()
 
 void RL_handler::learn()
 {
-    ROS_INFO("Learning");
+    //ROS_INFO("Learning");
     learner(state, action, state_next, policy, false);
 
     episode.push_back({state, action});
 
-    ROS_INFO("Episode updated: %f, %d, %d, %d", episode.back().state.reward(), episode.back().state.trait().offset_discretization, episode.back().action.trait().angular_discretization, action.trait().linear_discretization);
+    //ROS_INFO("Episode updated: %f, %d, %d, %d", episode.back().state.reward(), episode.back().state.trait().offset_discretization, episode.back().action.trait().angular_discretization, action.trait().linear_discretization);
     ROS_INFO("Episode size: %lu", episode.size());
 }
