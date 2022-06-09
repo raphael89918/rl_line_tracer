@@ -1,5 +1,5 @@
 <launch>
 <node name="cam" pkg="cam_trace" type="cam_node" />
-
-
+<param name="cam_rate" type="int" value="10" />
+<param name="show_result" type="bool" value="false" />
 </launch>
