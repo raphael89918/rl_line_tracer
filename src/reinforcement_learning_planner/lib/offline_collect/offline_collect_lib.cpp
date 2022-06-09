@@ -196,15 +196,15 @@ void OfflineCollect::get_state_reward()
 
     if (m_state_msg.offset == 1 || m_state_msg.offset == -1 || m_state_msg.offset == 0)
     {
-        reward = 5;
+        reward = 0.5;
     }
     else if (m_state_msg.offset == 2 || m_state_msg.offset == -2)
     {
-        reward = 3;
+        reward = 0.3;
     }
     else if (m_state_msg.offset == 3 || m_state_msg.offset == -3)
     {
-        reward = 1;
+        reward = 0.1;
     }
     if (m_reward_msg.out_of_line)
     {
