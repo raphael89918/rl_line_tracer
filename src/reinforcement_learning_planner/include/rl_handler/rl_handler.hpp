@@ -132,6 +132,8 @@ public:
 
     void push_revert_vector();
     relearn::link<rl_state, rl_action> pop_revert_vector();
+    bool is_revert_vector_empty();
+    size_t get_revert_vector_size();
 
     void get_action_epsilon();
     void set_action(driving_action &action);
