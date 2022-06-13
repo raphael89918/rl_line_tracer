@@ -49,6 +49,7 @@ private:
     ros::Subscriber m_sub_state;
     ros::Subscriber m_sub_reward;
     ros::Publisher m_pub_action;
+    ros::Rate m_execute_rate;
 
     reinforcement_learning_planner::state m_state_msg;
     reinforcement_learning_planner::reward m_reward_msg;
@@ -59,8 +60,6 @@ private:
 
     void state_callback(const reinforcement_learning_planner::state &msg);
     void reward_callback(const reinforcement_learning_planner::reward &msg);
-
-    int m_execute_rate;
 
     bool m_exit;
 };

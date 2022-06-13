@@ -42,12 +42,12 @@ struct driving_action
     uint8_t special_case;          // range: 0
 
     uint8_t angular_size; // angular_size = 3
-    uint8_t linear_size;  // linear_size = 2
+    uint8_t linear_size;  // linear_size = 1
 
     int8_t angular_upper_bound;      // angular_upper_bound = 1
     int8_t angular_lower_bound;      // angular_lower_bound = -1
     int8_t linear_upper_bound;       // linear_upper_bound = 1
-    int8_t linear_lower_bound;       // linear_lower_bound = 0
+    int8_t linear_lower_bound;       // linear_lower_bound = 1
     int8_t special_case_upper_bound; // special_case_upper_bound = 1
     int8_t special_case_lower_bound; // special_case_lower_bound = 0
 

@@ -20,6 +20,8 @@ public:
     OfflineCollect(ros::NodeHandle &nh);
     ~OfflineCollect();
 
+    int get_execute_rate();
+
     void init();  //initialize the planner
     void start(); //start the planner
     void suspend();
@@ -39,6 +41,7 @@ private:
     ros::Subscriber m_sub_reward;
     ros::Publisher m_pub_action;
     ros::Subscriber m_sub_action;
+    ros::Rate m_execute_rate;
 
     reinforcement_learning_planner::state m_state_msg;
     reinforcement_learning_planner::reward m_reward_msg;

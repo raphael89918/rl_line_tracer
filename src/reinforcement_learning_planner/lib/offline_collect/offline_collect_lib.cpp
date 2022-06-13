@@ -1,6 +1,7 @@
 #include "offline_collect/offline_collect.hpp"
 
 OfflineCollect::OfflineCollect()
+    : m_execute_rate(get_execute_rate())
 {
     ROS_INFO("Default OfflineCollect constructed");
 }
@@ -11,6 +12,7 @@ OfflineCollect::OfflineCollect(ros::NodeHandle &nh)
       m_sub_reward(nh.subscribe("/reward", 1, &OfflineCollect::reward_callback, this)),
       m_pub_action(nh.advertise<reinforcement_learning_planner::action>("/action", 1)),
       m_sub_action(nh.subscribe("/action", 1, &OfflineCollect::action_callback, this)),
+      m_execute_rate(get_execute_rate()),
       m_rl_handler("/home/ical/rl_line_tracer/rl_model/offline"),
       m_planner_state(PlannerState::INIT),
       m_exit(false)
@@ -21,6 +23,13 @@ OfflineCollect::OfflineCollect(ros::NodeHandle &nh)
 OfflineCollect::~OfflineCollect()
 {
     ROS_INFO("OfflineCollect destructed");
+}
+
+int OfflineCollect::get_execute_rate()
+{
+    int execute_rate;
+    m_nh.getParam("execute_rate", execute_rate);
+    return execute_rate;
 }
 
 void OfflineCollect::init()
@@ -112,7 +121,7 @@ void OfflineCollect::suspend()
 
 void OfflineCollect::execute()
 {
-    //initialize first state
+    // initialize first state
     ros::spinOnce();
     semantic_line_state state_trait = {m_state_msg.offset};
     m_rl_handler.set_state(m_reward_msg.offset, state_trait);
@@ -155,23 +164,22 @@ void OfflineCollect::stop_wheel()
 
 void OfflineCollect::plan()
 {
-    int execute_rate;
-    m_nh.getParam("execute_rate", execute_rate);
-    ros::Rate time_step(execute_rate);
-    ROS_INFO("plan_q_learning");
-
-    //m_rl_handler.get_action_epsilon();
-
     get_remote_action();
 
     set_action();
-    time_step.sleep(); //giving some time to react and observe the state/reward
     ros::spinOnce();
+
+    //ros::Time start_time = ros::Time::now();
+    m_execute_rate.sleep();
+    //ros::Time end_time = ros::Time::now();
+    //ROS_INFO("Time: %f", (end_time - start_time).toSec());
     get_state_reward();
 
     m_rl_handler.learn();
     m_rl_handler.record_episode();
     m_rl_handler.update_state();
+
+    //m_execute_rate.sleep(); // giving some time to react and observe the state/reward
 }
 
 void OfflineCollect::state_callback(const reinforcement_learning_planner::state &msg)

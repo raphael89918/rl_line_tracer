@@ -9,7 +9,7 @@ RL_handler::RL_handler()
       m_discount_factor(0.1),
       m_epsilon(0.1),
       m_state_trait{0, 0, 19, 2, 9, -9, 1, 0},
-      m_action_trait{0, 0, 0, 3, 2, 1, -1, 1, 0, 1, 0},
+      m_action_trait{0, 0, 0, 3, 1, 1, -1, 1, 1, 1, 0},
       m_model_folder("/home/ical/rl_line_tracer/rl_model/online"),
       state(0.0, m_state_trait),
       state_next(0.0, m_state_trait),
@@ -27,7 +27,7 @@ RL_handler::RL_handler(const std::string &folder_name)
       m_discount_factor(0.1),
       m_epsilon(0.1),
       m_state_trait{0, 0, 19, 2, 9, -9, 1, 0},
-      m_action_trait{0, 0, 0, 3, 2, 1, -1, 1, 0, 1, 0},
+      m_action_trait{0, 0, 0, 3, 1, 1, -1, 1, 1, 1, 0},
       m_model_folder(folder_name),
       state(0.0, m_state_trait),
       state_next(0.0, m_state_trait),
@@ -141,8 +141,9 @@ void RL_handler::load_model(const std::string &filename)
                     {
                         for (int8_t j = m_action_trait.angular_lower_bound; j <= m_action_trait.angular_upper_bound; j++)
                         {
+                            ROS_INFO("angular:%d, linear:%d", j, i);
                             auto action_temp = rl_action(driving_action{j, i});
-                            policy.update(state_temp, action_temp, action_vec[i][j + 2]);
+                            policy.update(state_temp, action_temp, action_vec[i - 1][j + 1]);
                         }
                     }
                     state_index++;
@@ -197,9 +198,8 @@ void RL_handler::load_model(const std::string &filename)
                 {
                     auto action_temp = rl_action(driving_action{j, i});
                     auto state_temp = rl_state(semantic_line_state{0, 1});
-                    policy.update(state_temp, action_temp, action_vec[i][j + 2]);
-                    ROS_INFO("action element: %f, %f, %f, %f, %f", action_vec[i][0], action_vec[i][1],
-                             action_vec[i][2], action_vec[i][3], action_vec[i][4]);
+                    ROS_INFO("angle: %d, linear: %d", j, i);
+                    policy.update(state_temp, action_temp, action_vec[i - 1][j + 1]);
                 }
             }
         }
@@ -406,7 +406,10 @@ void RL_handler::rand_action()
     auto linear = linear_gen(m_rand_gen);
 
     if (linear == 0 && angular == 0)
+    {
         rand_action();
+        return;
+    }
 
     action = rl_action(driving_action{angular, linear});
 
@@ -422,13 +425,15 @@ void RL_handler::best_action()
         ROS_INFO("No action found, switching to random action");
         action = rl_action(driving_action{0, 0});
         rand_action();
+        return;
     }
 
     rl_action action_temp = *action_ptr;
 
-    if(action_temp.trait().angular_discretization == 0 && action_temp.trait().linear_discretization == 0)
+    if (action_temp.trait().angular_discretization == 0 && action_temp.trait().linear_discretization == 0)
     {
         rand_action();
+        return;
     }
 
     action = action_temp;
