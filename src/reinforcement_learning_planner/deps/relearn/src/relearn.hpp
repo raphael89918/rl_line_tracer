@@ -323,6 +323,9 @@ namespace relearn
         triplet q_value(state_class state, action_class action, state_class next,
                         policy<state_class, action_class> &policy_map, bool terminate);
 
+        triplet q_change_value(state_class state, action_class action, state_class next, 
+                                policy<state_class, action_class> &policy_map, bool terminate);
+
         /// @brief do the updating for an episode - @param policy_map will be modified
         void operator()(markov_chain episode,
                         policy<state_class, action_class> &policy_map);
@@ -732,6 +735,30 @@ namespace relearn
                 q_next = 0.;
             return std::make_tuple(state, action,
                                    q + alpha * (r + (gamma * q_next) - q));
+        }
+    }
+
+        template <class state_class,
+              class action_class,
+              typename markov_chain,
+              typename value_type>
+    typename q_learning<state_class, action_class, markov_chain, value_type>::triplet
+    q_learning<state_class, action_class, markov_chain, value_type>::q_change_value(state_class state, action_class action, state_class next,
+                                                                             policy<state_class, action_class> &policy_map, bool terminate)
+    {
+        if (terminate)
+        {
+            return std::make_tuple(state, action, state.reward());
+        }
+        else
+        {
+            auto q = policy_map.value(state, action);
+            auto q_next = policy_map.best_value(next);
+            auto r = state.reward();
+            if (std::isnan(q_next))
+                q_next = 0.;
+            return std::make_tuple(state, action,
+                                   alpha * (r + (gamma * q_next) - q));
         }
     }
 

@@ -34,10 +34,34 @@ void Teleop::callback(const sensor_msgs::Joy::ConstPtr& Joy)
 {
     geometry_msgs::Twist v;
     ros::Rate loop_rate(100);
-   if(Joy->buttons[ton])
-     {
-     v.linear.x =(Joy->axes[axis_lin])*vlinear;
-     v.angular.z = - (Joy->axes[axis_ang])*vangular;
+    if(Joy->buttons[ton])
+    {
+         if(Joy->axes[axis_lin] > 0 && Joy->axes[axis_ang] == 0)
+         {
+             v.linear.x = 0.2;
+             v.angular.z = 0;
+         }
+         if(Joy->axes[axis_lin] > 0 && Joy->axes[axis_ang] != 0)
+         {
+             v.linear.x = 0.2;
+             if(Joy -> axes[axis_ang] > 0)
+             {
+                 v.angular.z = -1;
+             }
+             if(Joy -> axes[axis_ang] < 0)
+             {
+                 v.angular.z = 1;
+             }
+         }
+         if(Joy->axes[axis_lin] == 0 && Joy->axes[axis_ang] == 0)
+         {
+             v.linear.x = 0;
+             v.angular.z = 0;
+         }
+
+
+     //v.linear.x =(Joy->axes[axis_lin])*vlinear;
+     //v.angular.z = - (Joy->axes[axis_ang])*vangular;
      ROS_INFO("linear:%.3lf   angular:%.3lf",v.linear.x,v.angular.z);
      pub.publish(v);
      loop_rate.sleep();

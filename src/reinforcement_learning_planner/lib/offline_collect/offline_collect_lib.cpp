@@ -170,6 +170,7 @@ void OfflineCollect::plan()
     get_state_reward();
 
     m_rl_handler.learn();
+    m_rl_handler.record_episode();
     m_rl_handler.update_state();
 }
 
