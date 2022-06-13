@@ -30,62 +30,34 @@ void action_transform::execute()
 
 void action_transform::translate(double linear, double angular)
 {
-    if(linear == 0)
+    if(linear == 0.2 && angular == 0)
+    {
+        a_msg.linear_action = 1;
+        a_msg.angular_action = 0;
+    }
+    if(linear == 0 && angular == 1.5)
     {
         a_msg.linear_action = 0;
-        if(angular > 0)
-        {
-            a_msg.angular_action = 1;
-        }
-        if(angular < 0)
-        {
-            a_msg.angular_action = -1;
-        }
-        if(angular == 0)
-        {
-            a_msg.angular_action = 0;
-        }
+        a_msg.angular_action = 1;
     }
-    else
+    if(linear == 0 && angular == -1.5)
     {
-        if(angular==0)
-        {
-            a_msg.angular_action = 0;
-            a_msg.linear_action = 1;
-        }
-        else
-        {
-
-            //angular.z >0
-            if(angular >0 && angular <= 0.5)
-            {
-                a_msg.angular_action = 1;
-            }
-            if(angular >0.5 && angular <= 1)
-            {
-                a_msg.angular_action = 2;
-            }
-            //angular.z <0
-            if(angular <0 && angular >= -0.5)
-            {
-                a_msg.angular_action = -1;
-            }
-            if(angular <-0.5 && angular <= -1)
-            {
-                a_msg.angular_action = -2;
-            }
-
-            //linear.x >0
-            if(linear >0 && linear <= 0.1)
-            {
-                a_msg.linear_action = 1;
-            }
-            if(linear>0.1 && linear <=0.2)
-            {
-                a_msg.linear_action = 2;
-            }
-
-        }
+        a_msg.linear_action = 0;
+        a_msg.angular_action = -1;
     }
-
+    if(linear == 0.2 && angular == 1)
+    {
+        a_msg.linear_action = 1;
+        a_msg.angular_action = 1;
+    }
+    if(linear == 0.2 && angular == -1)
+    {
+        a_msg.linear_action = 1;
+        a_msg.angular_action = -1;
+    }
+    if(linear == 0 && angular == 0)
+    {
+        a_msg.linear_action = 0;
+        a_msg.angular_action = 0;
+    }
 }
