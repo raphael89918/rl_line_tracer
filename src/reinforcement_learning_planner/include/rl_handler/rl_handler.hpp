@@ -12,17 +12,19 @@
 #include <string>
 #include <filesystem>
 #include <regex>
+#include <queue>
+#include <utility>
 
 struct semantic_line_state
 {
-    int8_t offset_discretization; // range: -4 ~ 4
+    int8_t offset_discretization; // range: -9 ~ 9
     uint8_t special_case;
 
-    uint8_t state_size; // state_size = 9
-    uint8_t case_size;  // case_size = 3
+    uint8_t state_size; // state_size = 19
+    uint8_t case_size;  // case_size = 2
 
-    int8_t offset_upper_bound;       // offset_upper_bound = 4
-    int8_t offset_lower_bound;       // offset_lower_bound = -4
+    int8_t offset_upper_bound;       // offset_upper_bound = 9
+    int8_t offset_lower_bound;       // offset_lower_bound = -9
     int8_t special_case_upper_bound; // special_case_upper_bound = 1
     int8_t special_case_lower_bound; // special_case_lower_bound = 0
 
@@ -35,16 +37,16 @@ struct semantic_line_state
 
 struct driving_action
 {
-    int8_t angular_discretization; // range: -2 ~ 2
+    int8_t angular_discretization; // range: -1 ~ 1
     int8_t linear_discretization;  // range: 0 ~ 2
-    uint8_t special_case;          // range: 0 ~ 1
+    uint8_t special_case;          // range: 0
 
-    uint8_t angular_size; // angular_size = 5
-    uint8_t linear_size;  // linear_size = 3
+    uint8_t angular_size; // angular_size = 3
+    uint8_t linear_size;  // linear_size = 2
 
-    int8_t angular_upper_bound;      // angular_upper_bound = 2
-    int8_t angular_lower_bound;      // angular_lower_bound = -2
-    int8_t linear_upper_bound;       // linear_upper_bound = 2
+    int8_t angular_upper_bound;      // angular_upper_bound = 1
+    int8_t angular_lower_bound;      // angular_lower_bound = -1
+    int8_t linear_upper_bound;       // linear_upper_bound = 1
     int8_t linear_lower_bound;       // linear_lower_bound = 0
     int8_t special_case_upper_bound; // special_case_upper_bound = 1
     int8_t special_case_lower_bound; // special_case_lower_bound = 0
@@ -56,7 +58,7 @@ struct driving_action
     }
 };
 
-//operator== should be defined before hash_code, to know if two structs are equal, or the program simply won't compile
+// operator== should be defined before hash_code, to know if two structs are equal, or the program simply won't compile
 
 namespace std
 {
@@ -84,8 +86,8 @@ namespace std
     };
 }
 
-//You should hash_combine first, then you could interate the member of the struct
-//TODO: Separate the template declaration and the definition
+// You should hash_combine first, then you could interate the member of the struct
+// TODO: Separate the template declaration and the definition
 
 class RL_handler
 {
@@ -99,12 +101,12 @@ private:
     double m_discount_factor;
     double m_epsilon;
 
-    const semantic_line_state m_state;
-    const driving_action m_action;
+    const semantic_line_state m_state_trait;
+    const driving_action m_action_trait;
 
     std::vector<relearn::link<rl_state, rl_action>> m_revert_vector;
 
-    const std::filesystem::path m_model_folder; //folder preset path: rl_model/online
+    const std::filesystem::path m_model_folder; // folder preset path: rl_model/online
 
 public:
     RL_handler();
@@ -148,9 +150,15 @@ public:
     void set_next_state(double reward, semantic_line_state &state_next);
     void update_state();
 
+    relearn::link<rl_state, rl_action> get_random_episode(semantic_line_state &state, driving_action &action);
     void update_episode();
 
     void learn();
+    void record_episode();
+
+    void dyna_planning();
+
+    void prioritized_sweeping();
 };
 
 //#include "rl_handler_lib.cpp"

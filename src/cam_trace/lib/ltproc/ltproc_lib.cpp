@@ -233,49 +233,99 @@ void ltproc::find_offset()
         {
             cam_offset += ((midPt[i].x - 320) / 2) / 100.0 * weight[midPt[i].num];
         }
-        if ((cam_offset >= -5) && (cam_offset <= 5))
+        if ((cam_offset >= -4) && (cam_offset <= 4))
         {
             msg.offset = 0;
             msg.special_case = 0;
         }
-        else if ((cam_offset > 5) && (cam_offset <= 15))
+        else if ((cam_offset > 4) && (cam_offset <= 8))
         {
             msg.offset = 1;
             msg.special_case = 0;
         }
-        else if ((cam_offset > 15) && (cam_offset <= 25))
+        else if ((cam_offset > 8) && (cam_offset <= 12))
         {
             msg.offset = 2;
             msg.special_case = 0;
         }
-        else if ((cam_offset > 25) && (cam_offset <= 35))
+        else if ((cam_offset > 12) && (cam_offset <= 16))
         {
             msg.offset = 3;
             msg.special_case = 0;
         }
-        else if ((cam_offset > 35) && (cam_offset <= 45))
+        else if ((cam_offset > 16) && (cam_offset <= 20))
         {
             msg.offset = 4;
             msg.special_case = 0;
         }
-        else if ((cam_offset >= -15) && (cam_offset < -5))
+        else if ((cam_offset > 20) && (cam_offset <= 24))
+        {
+            msg.offset = 5;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset > 24) && (cam_offset <= 28))
+        {
+            msg.offset = 6;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset > 28) && (cam_offset <= 32))
+        {
+            msg.offset = 7;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset > 32) && (cam_offset <= 36))
+        {
+            msg.offset = 8;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset > 36) && (cam_offset <= 40))
+        {
+            msg.offset = 9;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset >= -8) && (cam_offset < -4))
         {
             msg.offset = -1;
             msg.special_case = 0;
         }
-        else if ((cam_offset >= -25) && (cam_offset < -15))
+        else if ((cam_offset >= -12) && (cam_offset < -8))
         {
             msg.offset = -2;
             msg.special_case = 0;
         }
-        else if ((cam_offset >= -35) && (cam_offset < -25))
+        else if ((cam_offset >= -16) && (cam_offset < -12))
         {
             msg.offset = -3;
             msg.special_case = 0;
         }
-        else if ((cam_offset >= -45) && (cam_offset < -35))
+        else if ((cam_offset >= -20) && (cam_offset < -16))
         {
             msg.offset = -4;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset >= -24) && (cam_offset < -20))
+        {
+            msg.offset = -5;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset >= -28) && (cam_offset < -24))
+        {
+            msg.offset = -6;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset >= -32) && (cam_offset < -28))
+        {
+            msg.offset = -7;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset >= -36) && (cam_offset < -32))
+        {
+            msg.offset = -8;
+            msg.special_case = 0;
+        }
+        else if ((cam_offset >= -40) && (cam_offset < -36))
+        {
+            msg.offset = -9;
             msg.special_case = 0;
         }
     }
