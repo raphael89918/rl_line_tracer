@@ -229,112 +229,56 @@ void ltproc::find_offset()
     }
     if (line)
     {
+        int offset;
+        int first_offset;
         for (int i = 0; i < (int)midPt.size(); i++)
         {
             cam_offset += ((midPt[i].x - 320) / 2) / 100.0 * weight[midPt[i].num];
+        first_point=((midPt[i].x - 320) / 2) ;
         }
-        if ((cam_offset >= -4) && (cam_offset <= 4))
+        if ((cam_offset >= -6) && (cam_offset <= 6))
         {
-            msg.offset = 0;
-            msg.special_case = 0;
+            offset = 3;
         }
-        else if ((cam_offset > 4) && (cam_offset <= 8))
+        else if ((cam_offset > 6) && (cam_offset <= 18))
         {
-            msg.offset = 1;
-            msg.special_case = 0;
+            offset = 4;
         }
-        else if ((cam_offset > 8) && (cam_offset <= 12))
+        else if ((cam_offset > 18) && (cam_offset <= 30))
         {
-            msg.offset = 2;
-            msg.special_case = 0;
+            offset = 5;
         }
-        else if ((cam_offset > 12) && (cam_offset <= 16))
+        else if ((cam_offset > 30) && (cam_offset <=45 ))
         {
-            msg.offset = 3;
-            msg.special_case = 0;
+            offset = 6;
         }
-        else if ((cam_offset > 16) && (cam_offset <= 20))
+        else if ((cam_offset >= -18) && (cam_offset < -6))
         {
-            msg.offset = 4;
-            msg.special_case = 0;
+            offset = 2;
         }
-        else if ((cam_offset > 20) && (cam_offset <= 24))
+        else if ((cam_offset >= -30) && (cam_offset < -18))
         {
-            msg.offset = 5;
-            msg.special_case = 0;
+            offset = 1;
         }
-        else if ((cam_offset > 24) && (cam_offset <= 28))
+        else if ((cam_offset >= -45) && (cam_offset < -30))
         {
-            msg.offset = 6;
-            msg.special_case = 0;
+            offset = 0;
         }
-        else if ((cam_offset > 28) && (cam_offset <= 32))
-        {
-            msg.offset = 7;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset > 32) && (cam_offset <= 36))
-        {
-            msg.offset = 8;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset > 36) && (cam_offset <= 40))
-        {
-            msg.offset = 9;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset >= -8) && (cam_offset < -4))
-        {
-            msg.offset = -1;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset >= -12) && (cam_offset < -8))
-        {
-            msg.offset = -2;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset >= -16) && (cam_offset < -12))
-        {
-            msg.offset = -3;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset >= -20) && (cam_offset < -16))
-        {
-            msg.offset = -4;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset >= -24) && (cam_offset < -20))
-        {
-            msg.offset = -5;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset >= -28) && (cam_offset < -24))
-        {
-            msg.offset = -6;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset >= -32) && (cam_offset < -28))
-        {
-            msg.offset = -7;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset >= -36) && (cam_offset < -32))
-        {
-            msg.offset = -8;
-            msg.special_case = 0;
-        }
-        else if ((cam_offset >= -40) && (cam_offset < -36))
-        {
-            msg.offset = -9;
-            msg.special_case = 0;
-        }
+        if(first_point<=-35)
+            first_offset=0;
+        else if((first_point>=-35)&&(first_point<=35))
+            first_offset=1;
+        else if(first_point>=35)
+            first_offset=2;
+
+        msg.offset=offset*3+first_offset;
+        msg.special_case = 0;
     }
 
     if (!line)
         msg.special_case = 1;
 
     offset_pub.publish(msg);
-
     sidept = sidePt;
 
     if (!sidePt.empty())
@@ -376,6 +320,7 @@ void ltproc::show_result(int x, int y)
         }
         std::cout << "side point's size:" << sidept.size() << std::endl;
         std::cout << "offset:" << cam_offset << std::endl;
+        std::cout << "first_point:" << first_point << std::endl;
         cv::namedWindow("result");
         cv::resizeWindow("result", x, y);
         cv::namedWindow("origin");

@@ -80,7 +80,7 @@ void twist_transform::setSpeed(char channel, double vel)
 
 void twist_transform::execute()
 {
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(20);
     ros::spinOnce();
     m_pub.publish(m_msg);
     loop_rate.sleep();
