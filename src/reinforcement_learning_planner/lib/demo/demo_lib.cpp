@@ -1,6 +1,7 @@
 #include "demo/demo.hpp"
 
 Demo::Demo()
+    : m_execute_rate(get_execute_rate())
 {
     ROS_INFO("Default Demo constructed");
 }
@@ -9,6 +10,7 @@ Demo::Demo(ros::NodeHandle &nh, DemoChoice demo_choice)
     : m_nh(nh),
       m_sub_state(nh.subscribe("/state", 1, &Demo::state_callback, this)),
       m_pub_action(nh.advertise<reinforcement_learning_planner::action>("/wheel/control", 1)),
+      m_execute_rate(get_execute_rate()),
       m_demo_choice(demo_choice),
       m_rl_handler(choice_to_filepath()),
       m_planner_state(PlannerState::INIT),
@@ -22,11 +24,17 @@ Demo::~Demo()
     ROS_INFO("OfflineCollect destructed");
 }
 
+int Demo::get_execute_rate()
+{
+    int execute_rate;
+    m_nh.getParam("execute_rate", execute_rate);
+    return execute_rate;
+}
+
 void Demo::init()
 {
     m_rl_handler.init();
     m_rl_handler.load_model(m_rl_handler.get_recent_filename());
-    m_rl_handler.ban_actions();
 }
 
 void Demo::start()
@@ -111,7 +119,7 @@ void Demo::suspend()
 
 void Demo::execute()
 {
-    //initialize first state
+    // initialize first state
     ros::spinOnce();
     semantic_line_state state_trait = {m_state_msg.offset};
     m_rl_handler.set_state(0, state_trait);
@@ -154,15 +162,12 @@ void Demo::stop_wheel()
 
 void Demo::plan()
 {
-    int execute_rate = 30;
-    m_nh.getParam("execute_rate", execute_rate);
-    ros::Rate time_step(execute_rate);
+    auto best_action = m_rl_handler.get_best_action();
 
-    m_rl_handler.best_action();
-
-    set_action();
-    time_step.sleep(); //giving some time to react and observe the state/reward
+    set_action(best_action);
+    m_execute_rate.sleep(); // giving some time to react and observe the state/reward
     ros::spinOnce();
+
     get_state();
 
     m_rl_handler.update_episode();
@@ -180,10 +185,10 @@ void Demo::get_state()
     m_rl_handler.set_next_state(0, next_state);
 }
 
-void Demo::set_action()
+void Demo::set_action(const driving_action &action)
 {
-    m_action_pub_msg.linear_action = m_rl_handler.action.trait().linear_discretization;
-    m_action_pub_msg.angular_action = m_rl_handler.action.trait().angular_discretization;
+    m_action_pub_msg.linear_action = action.linear_discretization;
+    m_action_pub_msg.angular_action = action.angular_discretization;
     m_action_pub_msg.revert = false;
 
     m_pub_action.publish(m_action_pub_msg);

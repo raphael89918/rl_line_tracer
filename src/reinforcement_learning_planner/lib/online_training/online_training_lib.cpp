@@ -6,6 +6,7 @@
 // using rl_episode = relearn::link<rl_state, rl_action>;
 
 OnlineTraining::OnlineTraining()
+    : m_execute_rate(get_execute_rate())
 {
     ROS_INFO("Default class OnlineTraining has been constructed");
 }
@@ -15,9 +16,9 @@ OnlineTraining::OnlineTraining(ros::NodeHandle &nh)
       m_sub_state(nh.subscribe("/state", 1, &OnlineTraining::state_callback, this)),
       m_sub_reward(nh.subscribe("/reward", 1, &OnlineTraining::reward_callback, this)),
       m_pub_action(nh.advertise<reinforcement_learning_planner::action>("/wheel/control", 1)),
+      m_execute_rate(get_execute_rate()),
       m_rl_handler("/home/ical/rl_line_tracer/rl_model/online"),
       m_planner_state(PlannerState::INIT),
-      m_execute_rate(get_execute_rate()),
       m_exit(false)
 {
     ROS_INFO("Class OnlineTraining has been constructed");
@@ -39,7 +40,6 @@ void OnlineTraining::init()
 {
     m_rl_handler.init();
     m_rl_handler.load_model(m_rl_handler.get_recent_filename());
-    m_rl_handler.ban_actions();
 }
 
 void OnlineTraining::start()
@@ -195,16 +195,11 @@ void OnlineTraining::revert_wheel()
 
 void OnlineTraining::plan()
 {
-    ros::Rate time_step(get_execute_rate());
-    // ROS_INFO("plan_q_learning");
-
-    m_rl_handler.get_action_epsilon();
-
-    set_action();
+    auto action = m_rl_handler.get_action_epsilon();
+    set_action(action);
 
     m_rl_handler.push_revert_vector();
-
-    time_step.sleep(); // giving some time to react and observe the state/reward
+    m_execute_rate.sleep(); // giving some time to react and observe the state/reward
     ros::spinOnce();
 
     get_state_reward();
@@ -233,15 +228,15 @@ void OnlineTraining::get_state_reward()
 
     double reward = 0;
 
-    if (m_state_msg.offset == 1 || m_state_msg.offset == -1 || m_state_msg.offset == 0)
+    if (m_reward_msg.offset == 1 || m_reward_msg.offset == -1 || m_reward_msg.offset == 0)
     {
         reward = 0.5;
     }
-    else if (m_state_msg.offset == 2 || m_state_msg.offset == -2)
+    else if (m_reward_msg.offset == 2 || m_reward_msg.offset == -2)
     {
         reward = 0.3;
     }
-    else if (m_state_msg.offset == 3 || m_state_msg.offset == -3)
+    else if (m_reward_msg.offset == 3 || m_reward_msg.offset == -3)
     {
         reward = -0.1;
     }
@@ -253,10 +248,10 @@ void OnlineTraining::get_state_reward()
     m_rl_handler.set_next_state(reward, next_state);
 }
 
-void OnlineTraining::set_action()
+void OnlineTraining::set_action(const driving_action &new_action)
 {
-    m_action_msg.linear_action = m_rl_handler.action.trait().linear_discretization;
-    m_action_msg.angular_action = m_rl_handler.action.trait().angular_discretization;
+    m_action_msg.linear_action = new_action.linear_discretization;
+    m_action_msg.angular_action = new_action.angular_discretization;
     m_action_msg.revert = false;
 
     m_pub_action.publish(m_action_msg);
@@ -265,13 +260,11 @@ void OnlineTraining::set_action()
 
 void OnlineTraining::out_of_bounds_trap()
 {
-    ros::Rate time_step(get_execute_rate());
-
     while (m_reward_msg.out_of_line == 1)
     {
         revert_wheel();
         // ROS_INFO("fixing out of bounds");
-        time_step.sleep();
+        m_execute_rate.sleep();
         ros::spinOnce();
         // ROS_INFO("%d", m_reward_msg.out_of_line);
     }
