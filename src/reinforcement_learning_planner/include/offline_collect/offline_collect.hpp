@@ -20,7 +20,7 @@ public:
     OfflineCollect(ros::NodeHandle &nh);
     ~OfflineCollect();
 
-    int get_execute_rate();
+    inline int get_execute_rate();
 
     void init();  //initialize the planner
     void start(); //start the planner
@@ -28,11 +28,11 @@ public:
     void execute();
     void plan(); //plan offline collect
 
-    void stop_wheel();
+    inline void stop_wheel();
 
     void get_state_reward();
-    void get_remote_action();
-    void set_action();
+    driving_action get_remote_action();
+    void set_action(const driving_action &action);
 
 private:
     ros::NodeHandle m_nh;
@@ -51,9 +51,9 @@ private:
     RL_handler m_rl_handler;
     PlannerState m_planner_state;
 
-    void state_callback(const reinforcement_learning_planner::state &msg);
-    void reward_callback(const reinforcement_learning_planner::reward &msg);
-    void action_callback(const reinforcement_learning_planner::action &msg);
+    inline void state_callback(const reinforcement_learning_planner::state &msg);
+    inline void reward_callback(const reinforcement_learning_planner::reward &msg);
+    inline void action_callback(const reinforcement_learning_planner::action &msg);
 
     bool m_exit;
 };

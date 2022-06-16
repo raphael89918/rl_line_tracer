@@ -104,6 +104,14 @@ private:
     const semantic_line_state m_state_trait;
     const driving_action m_action_trait;
 
+    rl_state m_state;
+    rl_state m_state_next;
+    rl_action m_action;
+
+    relearn::policy<rl_state, rl_action> m_policy;
+    std::deque<relearn::link<rl_state, rl_action>> m_episode;
+    relearn::q_learning<rl_state, rl_action> m_learner;
+
     std::vector<relearn::link<rl_state, rl_action>> m_revert_vector;
 
     const std::filesystem::path m_model_folder; // folder preset path: rl_model/online
@@ -112,14 +120,6 @@ public:
     RL_handler();
     RL_handler(const std::string &folder_name);
     ~RL_handler();
-
-    rl_state state;
-    rl_state state_next;
-    rl_action action;
-
-    relearn::policy<rl_state, rl_action> policy;
-    std::deque<relearn::link<rl_state, rl_action>> episode;
-    relearn::q_learning<rl_state, rl_action> learner;
 
     void set_parameter();
 
@@ -137,9 +137,11 @@ public:
     bool is_revert_vector_empty();
     size_t get_revert_vector_size();
 
-    void get_action_epsilon();
-    void set_action(driving_action &action);
+    driving_action get_action_epsilon();
+    driving_action get_action();
+    driving_action get_best_action();
 
+    void set_action(const driving_action &action);
     void ban_action(driving_action &action);
     void ban_actions();
 

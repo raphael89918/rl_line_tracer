@@ -36,7 +36,6 @@ void OfflineCollect::init()
 {
     m_rl_handler.init();
     m_rl_handler.load_model(m_rl_handler.get_recent_filename());
-    m_rl_handler.ban_actions();
 }
 
 void OfflineCollect::start()
@@ -164,9 +163,12 @@ void OfflineCollect::stop_wheel()
 
 void OfflineCollect::plan()
 {
-    get_remote_action();
 
-    set_action();
+    driving_action remote_action = get_remote_action();
+    set_action(remote_action);
+
+    m_execute_rate.sleep();
+
     ros::spinOnce();
 
     //ros::Time start_time = ros::Time::now();
@@ -203,15 +205,15 @@ void OfflineCollect::get_state_reward()
 
     double reward = 0;
 
-    if (m_state_msg.offset == 1 || m_state_msg.offset == -1 || m_state_msg.offset == 0)
+    if (m_reward_msg.offset == 1 || m_reward_msg.offset == -1 || m_reward_msg.offset == 0)
     {
         reward = 0.5;
     }
-    else if (m_state_msg.offset == 2 || m_state_msg.offset == -2)
+    else if (m_reward_msg.offset == 2 || m_reward_msg.offset == -2)
     {
         reward = 0.3;
     }
-    else if (m_state_msg.offset == 3 || m_state_msg.offset == -3)
+    else if (m_reward_msg.offset == 3 || m_reward_msg.offset == -3)
     {
         reward = 0.1;
     }
@@ -223,16 +225,17 @@ void OfflineCollect::get_state_reward()
     m_rl_handler.set_next_state(reward, next_state);
 }
 
-void OfflineCollect::get_remote_action()
+driving_action OfflineCollect::get_remote_action()
 {
     driving_action new_action = {m_action_sub_msg.angular_action, m_action_sub_msg.linear_action};
-    m_rl_handler.set_action(new_action);
+    return new_action;
 }
 
-void OfflineCollect::set_action()
+void OfflineCollect::set_action(const driving_action &new_action)
 {
-    m_action_pub_msg.linear_action = m_rl_handler.action.trait().linear_discretization;
-    m_action_pub_msg.angular_action = m_rl_handler.action.trait().angular_discretization;
+    m_rl_handler.set_action(new_action);
+    m_action_pub_msg.linear_action = new_action.linear_discretization;
+    m_action_pub_msg.angular_action = new_action.angular_discretization;
     m_action_pub_msg.revert = false;
 
     m_pub_action.publish(m_action_pub_msg);

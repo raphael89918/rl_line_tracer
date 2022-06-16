@@ -21,7 +21,7 @@ void action_transform::callback(const reinforcement_learning_planner::action &ms
 
 void action_transform::execute()
 {
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(20);
     ros::spinOnce();
     t_pub.publish(t_msg);
     loop_rate.sleep();

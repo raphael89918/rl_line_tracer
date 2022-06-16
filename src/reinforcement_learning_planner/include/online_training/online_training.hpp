@@ -25,21 +25,21 @@ public:
     OnlineTraining(ros::NodeHandle &nh);
     ~OnlineTraining();
 
-    int get_execute_rate();
+    inline int get_execute_rate();
 
     void init();    //initialize the planner
     void start();   //start the planner
     void suspend(); //suspend the planner
     void execute();
 
-    void stop_wheel();
-    void rotate_wheel();
-    void revert_wheel();
+    inline void stop_wheel();
+    inline void rotate_wheel();
+    inline void revert_wheel();
 
     void plan(); //plan online training
 
     void get_state_reward();
-    void set_action();
+    void set_action(const driving_action &action);
 
     void out_of_bounds_trap();
 
@@ -58,8 +58,9 @@ private:
     RL_handler m_rl_handler;
     PlannerState m_planner_state;
 
-    void state_callback(const reinforcement_learning_planner::state &msg);
-    void reward_callback(const reinforcement_learning_planner::reward &msg);
+
+    inline void state_callback(const reinforcement_learning_planner::state &msg);
+    inline void reward_callback(const reinforcement_learning_planner::reward &msg);
 
     bool m_exit;
 };

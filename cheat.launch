@@ -1,0 +1,4 @@
+<launch>
+<include file = "$(find wheel_controller)/launch/cheat.launch"/>
+<include file = "$(find cam_trace)/launch/getoffset.launch"/>
+</launch>

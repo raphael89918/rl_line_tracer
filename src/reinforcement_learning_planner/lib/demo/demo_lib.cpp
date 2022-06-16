@@ -35,7 +35,6 @@ void Demo::init()
 {
     m_rl_handler.init();
     m_rl_handler.load_model(m_rl_handler.get_recent_filename());
-    m_rl_handler.ban_actions();
 }
 
 void Demo::start()
@@ -163,11 +162,13 @@ void Demo::stop_wheel()
 
 void Demo::plan()
 {
-    m_rl_handler.best_action();
 
-    set_action();
-    ros::spinOnce();
+    auto best_action = m_rl_handler.get_best_action();
+
+    set_action(best_action);
     m_execute_rate.sleep(); // giving some time to react and observe the state/reward
+    ros::spinOnce();
+
     get_state();
 
     m_rl_handler.update_episode();
@@ -185,10 +186,10 @@ void Demo::get_state()
     m_rl_handler.set_next_state(0, next_state);
 }
 
-void Demo::set_action()
+void Demo::set_action(const driving_action &action)
 {
-    m_action_pub_msg.linear_action = m_rl_handler.action.trait().linear_discretization;
-    m_action_pub_msg.angular_action = m_rl_handler.action.trait().angular_discretization;
+    m_action_pub_msg.linear_action = action.linear_discretization;
+    m_action_pub_msg.angular_action = action.angular_discretization;
     m_action_pub_msg.revert = false;
 
     m_pub_action.publish(m_action_pub_msg);

@@ -22,7 +22,7 @@ void action_transform::callback(const geometry_msgs::Twist &msg)
 
 void action_transform::execute()
 {
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(20);
     ros::spinOnce();
     a_pub.publish(a_msg);
     loop_rate.sleep();
