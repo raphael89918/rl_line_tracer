@@ -171,17 +171,12 @@ void OfflineCollect::plan()
 
     ros::spinOnce();
 
-    //ros::Time start_time = ros::Time::now();
     m_execute_rate.sleep();
-    //ros::Time end_time = ros::Time::now();
-    //ROS_INFO("Time: %f", (end_time - start_time).toSec());
     get_state_reward();
 
     m_rl_handler.learn();
     m_rl_handler.record_episode();
     m_rl_handler.update_state();
-
-    //m_execute_rate.sleep(); // giving some time to react and observe the state/reward
 }
 
 void OfflineCollect::state_callback(const reinforcement_learning_planner::state &msg)

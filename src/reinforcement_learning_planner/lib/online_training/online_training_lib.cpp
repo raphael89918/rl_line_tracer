@@ -195,7 +195,6 @@ void OnlineTraining::revert_wheel()
 
 void OnlineTraining::plan()
 {
-
     auto action = m_rl_handler.get_action_epsilon();
     set_action(action);
 
@@ -203,15 +202,12 @@ void OnlineTraining::plan()
     m_execute_rate.sleep(); // giving some time to react and observe the state/reward
 
     ros::spinOnce();
-    m_execute_rate.sleep(); // giving some time to react and observe the state/reward
-
     get_state_reward();
 
     out_of_bounds_trap();
 
     m_rl_handler.learn();
     m_rl_handler.record_episode();
-
     m_rl_handler.update_state();
 }
 
@@ -263,12 +259,10 @@ void OnlineTraining::set_action(const driving_action &new_action)
 
 void OnlineTraining::out_of_bounds_trap()
 {
-    while (m_reward_msg.out_of_line == 1)
+    while (m_reward_msg.out_of_line == 1 || m_state_msg.special_case == 1)
     {
         revert_wheel();
-        // ROS_INFO("fixing out of bounds");
         m_execute_rate.sleep();
         ros::spinOnce();
-        // ROS_INFO("%d", m_reward_msg.out_of_line);
     }
 }
