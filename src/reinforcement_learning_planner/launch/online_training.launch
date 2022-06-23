@@ -1,4 +1,5 @@
 <launch>
 <node name="online_training" pkg="reinforcement_learning_planner" type="online_training_node" output="screen"/>
 <param name="execute_rate" type="int" value="5" />
+<param name="max_iteration" type="int" value="1000" />
 </launch>

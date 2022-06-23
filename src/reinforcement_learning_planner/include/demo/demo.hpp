@@ -27,12 +27,13 @@ public:
     ~Demo();
 
     inline int get_execute_rate();
+    inline int get_max_iteration();
 
-    void init();  //initialize the planner
-    void start(); //start the planner
+    void init();  // initialize the planner
+    void start(); // start the planner
     void suspend();
     void execute();
-    void plan(); //plan offline collect
+    void plan(); // plan offline collect
 
     inline void stop_wheel();
 
@@ -59,4 +60,5 @@ private:
     inline void action_callback(const reinforcement_learning_planner::action &msg);
 
     bool m_exit;
+    int m_max_iteration;
 };

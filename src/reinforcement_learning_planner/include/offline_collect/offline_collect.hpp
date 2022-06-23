@@ -21,6 +21,7 @@ public:
     ~OfflineCollect();
 
     inline int get_execute_rate();
+    inline int get_max_iteration();
 
     void init();  //initialize the planner
     void start(); //start the planner
@@ -56,4 +57,5 @@ private:
     inline void action_callback(const reinforcement_learning_planner::action &msg);
 
     bool m_exit;
+    int m_max_iteration;
 };

@@ -232,6 +232,14 @@ void RL_handler::save_model(const std::string &filename)
 {
     ROS_INFO("Saving model: %s", filename.c_str());
 
+    // calculate revert rate
+    size_t revert_count = 0;
+    for (auto &e : this->m_episode)
+    {
+        if (e.state.reward() < 0)
+            revert_count++;
+    }
+
     std::filesystem::create_directories(m_model_folder);
     std::filesystem::path model_path = m_model_folder / filename;
 
@@ -267,6 +275,12 @@ void RL_handler::save_model(const std::string &filename)
              << "\n";
         // note: the type should explicitly be specified, since file output is binary by default
     }
+
+    file << "---"
+         << "\n";
+
+    file << "revert_rate" << std::to_string(revert_count / get_episode_size())
+         << "\n";
 
     file << "---"
          << "\n";
@@ -479,6 +493,11 @@ void RL_handler::update_state()
 {
     // ROS_INFO("Update state");
     m_state = m_state_next;
+}
+
+int RL_handler::get_episode_size()
+{
+    return m_episode.size();
 }
 
 void RL_handler::update_episode()

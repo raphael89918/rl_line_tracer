@@ -154,6 +154,7 @@ public:
 
     relearn::link<rl_state, rl_action> get_random_episode(semantic_line_state &state, driving_action &action);
     void update_episode();
+    int get_episode_size();
 
     void learn();
     void record_episode();

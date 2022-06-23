@@ -14,7 +14,8 @@ Demo::Demo(ros::NodeHandle &nh, DemoChoice demo_choice)
       m_demo_choice(demo_choice),
       m_rl_handler(choice_to_filepath()),
       m_planner_state(PlannerState::INIT),
-      m_exit(false)
+      m_exit(false),
+      m_max_iteration(get_max_iteration())
 {
     ROS_INFO("OfflineCollect constructed");
 }
@@ -29,6 +30,13 @@ int Demo::get_execute_rate()
     int execute_rate;
     m_nh.getParam("execute_rate", execute_rate);
     return execute_rate;
+}
+
+int Demo::get_max_iteration()
+{
+    int max_iteration;
+    m_nh.getParam("max_iteration", max_iteration);
+    return max_iteration;
 }
 
 void Demo::init()
@@ -128,6 +136,15 @@ void Demo::execute()
     {
         plan();
         bool is_executing = true;
+
+        if (m_rl_handler.get_episode_size() > m_max_iteration)
+        {
+            ROS_INFO("reached max_iteration: %d", m_max_iteration);
+            stop_wheel();
+            m_planner_state = PlannerState::SUSPEND;
+            is_executing = false;
+            break;
+        }
 
         if (kbhit())
         {
