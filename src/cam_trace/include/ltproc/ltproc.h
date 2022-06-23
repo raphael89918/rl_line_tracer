@@ -57,7 +57,7 @@ class ltproc {
         ros::Publisher offset_pub;
          image_transport::ImageTransport image_transport_;
         Mat mask[7];
-        float weight[7] = { 1, 1, 5, 5, 5, 10, 10 };
+        float weight[7] = { 10, 10, 5, 5, 5, 1, 1 };
         VideoCapture lt_cam;
         int lt_lane_width;
         int lt_prune_dis;
