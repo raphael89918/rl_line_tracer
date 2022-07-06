@@ -279,7 +279,7 @@ void RL_handler::save_model(const std::string &filename)
     file << "---"
          << "\n";
 
-    file << "revert_rate" << std::to_string(revert_count / get_episode_size())
+    file << "revert_rate: " << std::to_string(revert_count / (get_episode_size()))
          << "\n";
 
     file << "---"

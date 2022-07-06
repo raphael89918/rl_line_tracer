@@ -189,6 +189,7 @@ void Demo::plan()
     get_state();
 
     m_rl_handler.update_episode();
+    m_rl_handler.record_episode();
     m_rl_handler.update_state();
 }
 

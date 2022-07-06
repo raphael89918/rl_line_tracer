@@ -254,7 +254,7 @@ void OnlineTraining::get_state_reward()
     }
     else if (m_reward_msg.offset == 3 || m_reward_msg.offset == -3)
     {
-        reward = -0.1;
+        reward = 0.1;
     }
     if (m_reward_msg.out_of_line)
     {

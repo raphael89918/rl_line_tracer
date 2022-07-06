@@ -180,15 +180,12 @@ void OfflineCollect::stop_wheel()
 
 void OfflineCollect::plan()
 {
-
     driving_action remote_action = get_remote_action();
     set_action(remote_action);
 
     m_execute_rate.sleep();
-
     ros::spinOnce();
 
-    m_execute_rate.sleep();
     get_state_reward();
 
     m_rl_handler.learn();
